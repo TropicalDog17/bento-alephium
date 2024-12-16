@@ -54,7 +54,7 @@ pub struct GhostUncleBlockEntry {
 }
 
 #[derive(Deserialize, Debug)]
-pub struct BlocksPerTimesStampRange {
+pub struct BlocksPerTimestampRange {
     pub blocks: Vec<Vec<BlockEntry>>,
 }
 
@@ -65,7 +65,7 @@ pub struct BlockAndEvents {
 }
 
 #[derive(Deserialize, Debug)]
-pub struct BlocksAndEventssPerTimesStampRange {
+pub struct BlocksAndEventsPerTimestampRange {
     pub blocks_and_events: Vec<Vec<BlockAndEvents>>,
 }
 

@@ -1,6 +1,6 @@
 use crate::types::{
-    BlockAndEvents, BlockEntry, BlockHash, BlockHeaderEntry, BlocksAndEventssPerTimesStampRange,
-    BlocksPerTimesStampRange, Transaction,
+    BlockAndEvents, BlockEntry, BlockHash, BlockHeaderEntry, BlocksAndEventsPerTimestampRange,
+    BlocksPerTimestampRange, Transaction,
 };
 use anyhow::Result;
 use url::Url;
@@ -40,7 +40,7 @@ impl Client {
 
     // List blocks on the given time interval.
     // GET:/blockflow/blocks
-    pub async fn get_blocks(&self, from_ts: u64, to_ts: u64) -> Result<BlocksPerTimesStampRange> {
+    pub async fn get_blocks(&self, from_ts: u64, to_ts: u64) -> Result<BlocksPerTimestampRange> {
         let endpoint = format!("/blockflow/blocks?fromTs={}&toTs={}", from_ts, to_ts);
         let url = Url::parse(&format!("{}/{}", self.base_url, endpoint))?;
         let response = self.inner.get(url).send().await?.json().await?;
@@ -53,7 +53,7 @@ impl Client {
         &self,
         from_ts: u64,
         to_ts: u64,
-    ) -> Result<BlocksAndEventssPerTimesStampRange> {
+    ) -> Result<BlocksAndEventsPerTimestampRange> {
         let endpoint = format!("/blockflow/blocks-with-events?fromTs={}&toTs={}", from_ts, to_ts);
         let url = Url::parse(&format!("{}/{}", self.base_url, endpoint))?;
         let response = self.inner.get(url).send().await?.json().await?;
