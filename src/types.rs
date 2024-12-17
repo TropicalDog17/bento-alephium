@@ -42,7 +42,7 @@ pub struct BlockEntry {
     pub deps: Vec<BlockHash>,
     pub transactions: Vec<Transaction>,
     pub nonce: String,
-    pub version: String,
+    pub version: i8,
     pub dep_state_hash: Hash,
     pub txs_hash: Hash,
     pub target: String,
@@ -100,7 +100,7 @@ pub struct UnsignedTx {
     pub tx_id: String,
     pub version: i32,
     pub network_id: i32,
-    pub script_opt: String,
+    pub script_opt: Option<String>,
     pub gas_amount: i32,
     pub gas_price: String,
     pub inputs: Vec<AssetInput>,
@@ -227,7 +227,10 @@ mod tests {
 
         let block: BlockEntry = serde_json::from_value(json_data).unwrap();
 
-        assert_eq!(block.hash.0, "00000000000006f8c2bcaac93c5a23df8fba7119ba139d80a49d0303bbf84850");
+        assert_eq!(
+            block.hash.0,
+            "00000000000006f8c2bcaac93c5a23df8fba7119ba139d80a49d0303bbf84850"
+        );
         assert_eq!(block.timestamp, 1672531200);
         assert_eq!(block.chain_from, 1);
         assert_eq!(block.chain_to, 2);
@@ -235,7 +238,7 @@ mod tests {
         assert_eq!(block.deps.len(), 2);
         assert_eq!(block.deps[0].0, "hash1");
         assert_eq!(block.nonce, "nonce_value");
-        assert_eq!(block.version, "1.0.0");
+        assert_eq!(block.version, 0);
         assert_eq!(block.dep_state_hash.0, "dep_hash");
         assert_eq!(block.txs_hash.0, "txs_hash");
         assert_eq!(block.target, "target_value");
