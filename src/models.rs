@@ -8,7 +8,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::types::{Output, OutputRef, UnsignedTx};
 
-#[derive(Queryable, Selectable, Insertable, Debug, Clone, Serialize)]
+#[derive(Queryable, Selectable, Insertable, Debug, Clone, Serialize, AsChangeset)]
 #[diesel(table_name = crate::schema::blocks)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct Block {
@@ -40,7 +40,7 @@ pub struct Event {
     pub fields: serde_json::Value,
 }
 
-#[derive(Queryable, Selectable, Insertable, Debug, Clone, Serialize, Deserialize)]
+#[derive(Queryable, Selectable, Insertable, Debug, Clone, Serialize, Deserialize, AsChangeset)]
 #[diesel(table_name = crate::schema::transactions)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct Transaction {

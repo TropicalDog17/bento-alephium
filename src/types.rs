@@ -213,7 +213,7 @@ mod tests {
             "deps": ["hash1", "hash2"],
             "transactions": [],
             "nonce": "nonce_value",
-            "version": "1.0.0",
+            "version": 1,
             "depStateHash": "dep_hash",
             "txsHash": "txs_hash",
             "target": "target_value",
@@ -238,7 +238,7 @@ mod tests {
         assert_eq!(block.deps.len(), 2);
         assert_eq!(block.deps[0].0, "hash1");
         assert_eq!(block.nonce, "nonce_value");
-        assert_eq!(block.version, 0);
+        assert_eq!(block.version, 1);
         assert_eq!(block.dep_state_hash.0, "dep_hash");
         assert_eq!(block.txs_hash.0, "txs_hash");
         assert_eq!(block.target, "target_value");
@@ -289,7 +289,7 @@ mod tests {
                             "deps": ["hash1", "hash2"],
                             "transactions": [],
                             "nonce": "nonce_value",
-                            "version": "1.0.0",
+                            "version": 1,
                             "depStateHash": "dep_hash",
                             "txsHash": "txs_hash",
                             "target": "target_value",

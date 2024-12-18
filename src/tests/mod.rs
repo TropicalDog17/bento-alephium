@@ -1,1 +1,3 @@
-pub mod integration_test;
+mod client;
+mod crud;
+mod repository;

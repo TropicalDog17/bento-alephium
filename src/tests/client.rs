@@ -34,6 +34,7 @@ async fn test_get_block() {
         ))
         .await
         .unwrap();
+    println!("{:?}", block);
     assert_eq!(
         block.hash,
         BlockHash("000000406321d177ccb6bedcb3910c60494a9e6c0259a85c7ab40e7c66c5b8b0".to_string())
