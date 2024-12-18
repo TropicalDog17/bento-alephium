@@ -47,7 +47,7 @@ fn mock_block() -> BlockEntry {
         ],
         transactions: vec![Transaction {
             unsigned: UnsignedTx {
-                tx_id: "f8dd97f971f383f2554a075ac7665cf2a4280b12cea9f28bd63055c0de4764a4"
+                tx_id: "f8dd97f971f383f2554a075ac7665cf2a4280b12cea9f28bd63055c0de4764a1"
                     .to_string(),
                 version: 0,
                 network_id: 1,
@@ -145,7 +145,7 @@ fn test_crud_event() {
     let db_pool = initialize_db_pool();
     let mut conn = db_pool.get().unwrap();
     let event = models::Event {
-        tx_id: "f8dd97f971f383f2554a075ac7665cf2a4280b12cea9f28bd63055c0de4764a4".to_string(),
+        tx_id: "f8dd97f971f383f2554a075ac7665cf2a4280b12cea9f28bd63055c0de4764a1".to_string(),
         contract_address: "1AuWeE5Cwt2ES3473qnpKFV96z57CYL6mbTY7hva9Xz3h".to_string(),
         event_index: 0,
         fields: serde_json::Value::String("{}".to_string()),
@@ -154,7 +154,7 @@ fn test_crud_event() {
     let results = events
         .filter(
             tx_id
-                .eq("f8dd97f971f383f2554a075ac7665cf2a4280b12cea9f28bd63055c0de4764a4".to_string()),
+                .eq("f8dd97f971f383f2554a075ac7665cf2a4280b12cea9f28bd63055c0de4764a1".to_string()),
         )
         .select(models::Event::as_select())
         .load(&mut conn)
@@ -164,7 +164,7 @@ fn test_crud_event() {
 
     // Clean up
     diesel::delete(events.filter(
-        tx_id.eq("f8dd97f971f383f2554a075ac7665cf2a4280b12cea9f28bd63055c0de4764a4".to_string()),
+        tx_id.eq("f8dd97f971f383f2554a075ac7665cf2a4280b12cea9f28bd63055c0de4764a1".to_string()),
     ))
     .execute(&mut conn)
     .unwrap();
@@ -172,7 +172,7 @@ fn test_crud_event() {
     let results = events
         .filter(
             tx_id
-                .eq("f8dd97f971f383f2554a075ac7665cf2a4280b12cea9f28bd63055c0de4764a4".to_string()),
+                .eq("f8dd97f971f383f2554a075ac7665cf2a4280b12cea9f28bd63055c0de4764a1".to_string()),
         )
         .select(models::Event::as_select())
         .load(&mut conn)
@@ -190,7 +190,7 @@ fn test_crud_transaction() {
     let db_pool = initialize_db_pool();
     let mut conn = db_pool.get().unwrap();
     let transaction = models::Transaction {
-        tx_hash: "f8dd97f971f383f2554a075ac7665cf2a4280b12cea9f28bd63055c0de4764a4".to_string(),
+        tx_hash: "f8dd97f971f383f2554a075ac7665cf2a4280b12cea9f28bd63055c0de4764a1".to_string(),
         unsigned: serde_json::Value::String("{}".to_string()),
         script_execution_ok: true,
         contract_inputs: serde_json::Value::String("{}".to_string()),
@@ -205,7 +205,7 @@ fn test_crud_transaction() {
     let results = transactions
         .filter(
             tx_hash
-                .eq("f8dd97f971f383f2554a075ac7665cf2a4280b12cea9f28bd63055c0de4764a4".to_string()),
+                .eq("f8dd97f971f383f2554a075ac7665cf2a4280b12cea9f28bd63055c0de4764a1".to_string()),
         )
         .select(models::Transaction::as_select())
         .load(&mut conn)
@@ -215,7 +215,7 @@ fn test_crud_transaction() {
 
     // Cleanup
     diesel::delete(transactions.filter(
-        tx_hash.eq("f8dd97f971f383f2554a075ac7665cf2a4280b12cea9f28bd63055c0de4764a4".to_string()),
+        tx_hash.eq("f8dd97f971f383f2554a075ac7665cf2a4280b12cea9f28bd63055c0de4764a1".to_string()),
     ))
     .execute(&mut conn)
     .unwrap();
