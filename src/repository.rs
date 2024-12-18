@@ -29,4 +29,10 @@ impl BlockRepository {
         let result = blocks.filter(height.eq(height_val)).first::<Block>(&mut conn).optional()?;
         Ok(result)
     }
+
+    pub fn store_block(&self, block: Block) -> Result<Block, diesel::result::Error> {
+        use crate::schema::blocks::dsl::*;
+        let mut conn = self.pool.get().unwrap();
+        diesel::insert_into(blocks).values(block).get_result(&mut conn)
+    }
 }
