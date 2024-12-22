@@ -39,8 +39,8 @@ impl Client {
     }
 
     // List blocks on the given time interval.
-    // GET:/blockflow/blocks
-    pub async fn get_blocks(&self, from_ts: u64, to_ts: u64) -> Result<BlocksPerTimestampRange> {
+    // GET:/blockflow/blocks?fromTs={from_ts}&toTs={to_ts}
+    pub async fn get_blocks(&self, from_ts: u128, to_ts: u128) -> Result<BlocksPerTimestampRange> {
         let endpoint = format!("blockflow/blocks?fromTs={}&toTs={}", from_ts, to_ts);
         let url = Url::parse(&format!("{}/{}", self.base_url, endpoint))?;
         let response = self.inner.get(url).send().await?.json().await?;
@@ -51,8 +51,8 @@ impl Client {
     // GET:/blockflow/blocks-with-events
     pub async fn get_blocks_and_events(
         &self,
-        from_ts: u64,
-        to_ts: u64,
+        from_ts: u128,
+        to_ts: u128,
     ) -> Result<BlocksAndEventsPerTimestampRange> {
         let endpoint = format!("blockflow/blocks-with-events?fromTs={}&toTs={}", from_ts, to_ts);
         let url = Url::parse(&format!("{}/{}", self.base_url, endpoint))?;

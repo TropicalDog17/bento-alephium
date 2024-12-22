@@ -179,6 +179,11 @@ pub struct FixedAssetOutput {
     pub message: String,
 }
 
+pub struct TimestampRange {
+    from: u64,
+    to: u64,
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
