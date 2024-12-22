@@ -15,7 +15,6 @@ CREATE TABLE blocks (
     hash_rate NUMERIC NOT NULL,
     parent_hash TEXT,
     uncles JSONB NOT NULL DEFAULT '[]',
-    
     CONSTRAINT height_positive CHECK (height >= 0),
     CONSTRAINT tx_number_positive CHECK (tx_number >= 0),
     CONSTRAINT hash_rate_positive CHECK (hash_rate >= 0)
