@@ -1,26 +1,20 @@
 use std::{env, time};
 
 use crate::{
-    client::{Client, Network},
-    db::DbPool,
-    repository::{BlockRepository, EventRepository, TransactionRepository},
-    schema::transactions,
-    types::TimestampRange, ws::WsClient,
+    client::{Client, Network}, db::DbPool, models::Block, repository::{BlockRepository, EventRepository, TransactionRepository}, schema::transactions, types::TimestampRange, ws::WsClient
 };
 use async_trait::async_trait;
+use tokio_tungstenite::tungstenite::http::response;
 
 #[async_trait]
 pub trait BlockIndexer: Send + Sync {
     // Forward indexing
     async fn index_new_blocks(&mut self) -> Result<(), anyhow::Error>;
     async fn handle_reorg(&mut self, fork_point: u64) -> Result<(), anyhow::Error>;
-    async fn get_latest_height(&self, chain_from: u64) -> Result<u64, anyhow::Error>;
+    async fn get_latest_height(&self, chain_from: i64) -> Result<i64, anyhow::Error>;
 
     // Backfilling
     async fn backfill(&mut self, range: TimestampRange) -> Result<(), anyhow::Error>;
-    async fn get_backfill_progress(&self) -> Result<Option<(u64, u64)>, anyhow::Error>;
-    async fn pause_backfill(&mut self) -> Result<(), anyhow::Error>;
-    async fn resume_backfill(&mut self) -> Result<(), anyhow::Error>;
 }
 
 pub struct IndexerService {
@@ -45,29 +39,32 @@ impl IndexerService {
 #[async_trait]
 impl BlockIndexer for IndexerService {
     async fn index_new_blocks(&mut self) -> Result<(), anyhow::Error>{
-        let lookback = 5; // 5000 ms
-        let curr_time = time::SystemTime::now().duration_since(time::UNIX_EPOCH).unwrap().as_micros();
-        let blocks = self.alephium_client.get_blocks(curr_time - lookback, curr_time);
-        todo!()
+        let lookback = 5000; // 5000 ms
+        let curr_time = time::SystemTime::now().duration_since(time::UNIX_EPOCH).unwrap().as_millis();
+        let response = self.alephium_client.get_blocks(curr_time - lookback, curr_time).await.unwrap();
+        match response.blocks[..] {
+            [] => return Ok(()),
+            _ => {
+                log::info!("Indexing {} blocks of {} chain shards", response.blocks.iter().flatten().count(), response.blocks.len());
+            }
+        }
+
+        let blocks_to_save = response.blocks.iter().flatten().map(|block_entry| {
+            Block::from((*block_entry).clone())
+        }).collect::<Vec<_>>();
+
+        self.blocks.store_batch(&blocks_to_save)?;
+        Ok(())
     }
     async fn handle_reorg(&mut self, fork_point: u64) -> Result<(), anyhow::Error>{
         todo!()
     }
-    async fn get_latest_height(&self, chain_from: u64) -> Result<u64, anyhow::Error>{
-        todo!()
+    async fn get_latest_height(&self, chain_id: i64) -> Result<i64, anyhow::Error>{
+        self.blocks.get_latest_height(chain_id)
     }
 
     // Backfilling
     async fn backfill(&mut self, range: TimestampRange) -> Result<(), anyhow::Error>{
-        todo!()
-    }
-    async fn get_backfill_progress(&self) -> Result<Option<(u64, u64)>, anyhow::Error>{
-        todo!()
-    }
-    async fn pause_backfill(&mut self) -> Result<(), anyhow::Error>{
-        todo!()
-    }
-    async fn resume_backfill(&mut self) -> Result<(), anyhow::Error>{
         todo!()
     }
 }

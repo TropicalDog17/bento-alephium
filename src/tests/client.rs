@@ -7,7 +7,6 @@ use crate::{
 #[tokio::test]
 async fn test_get_blocks() {
     let testnet_client = Client::new(Network::Testnet);
-
     let block_range = testnet_client.get_blocks(1734442735405, 1734442740808).await.unwrap();
 
     assert_eq!(block_range.blocks.len(), 16);

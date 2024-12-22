@@ -1,6 +1,10 @@
 use std::fmt;
 
+use bigdecimal::BigDecimal;
+use chrono::{DateTime, NaiveDateTime};
 use serde::{Deserialize, Serialize};
+
+use crate::models::Block as BlockModel;
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Eq, Clone)]
 pub struct Hash(pub String);
@@ -31,7 +35,7 @@ pub struct BlockHeaderEntry {
     pub deps: Vec<BlockHash>,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct BlockEntry {
     pub hash: BlockHash,
@@ -49,7 +53,7 @@ pub struct BlockEntry {
     pub ghost_uncles: Vec<GhostUncleBlockEntry>,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct GhostUncleBlockEntry {
     pub block_hash: BlockHash,
@@ -94,7 +98,7 @@ pub struct ContractEventByBlockHash {
     pub fields: Vec<Val>,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct UnsignedTx {
     pub tx_id: String,
@@ -107,7 +111,7 @@ pub struct UnsignedTx {
     pub fixed_outputs: Vec<FixedAssetOutput>,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct Transaction {
     pub unsigned: UnsignedTx,
@@ -118,14 +122,14 @@ pub struct Transaction {
     pub script_signatures: Vec<String>,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct OutputRef {
     pub hint: i32,
     pub key: String,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct Output {}
 
@@ -140,7 +144,7 @@ pub struct ContractOutput {
     pub typ: String,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct AssetInput {
     pub output_ref: OutputRef,
@@ -160,14 +164,14 @@ pub struct AssetOutput {
     pub typ: String,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct Token {
     pub id: String,
     pub amount: String,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct FixedAssetOutput {
     pub hint: i32,
@@ -182,6 +186,37 @@ pub struct FixedAssetOutput {
 pub struct TimestampRange {
     from: u64,
     to: u64,
+}
+impl From<BlockEntry> for BlockModel {
+    fn from(block: BlockEntry) -> Self {
+        BlockModel {
+            hash: block.hash.0,
+            timestamp: DateTime::from_timestamp_millis(block.timestamp).unwrap().naive_utc(),
+            chain_from: block.chain_from,
+            chain_to: block.chain_to,
+            height: block.height,
+            tx_number: block.transactions.len() as i64,
+            main_chain: block.chain_from == block.chain_to, 
+            deps: Some(block.deps.iter().map(|hash| Some(hash.0.clone())).collect()),
+            nonce: block.nonce.clone(),
+            version: block.version.to_string(),
+            dep_state_hash: block.dep_state_hash.0.clone(),
+            txs_hash: block.txs_hash.0.clone(),
+            target: block.target.clone(),
+            hash_rate: BigDecimal::default(), // TODO: calculate hash rate
+            parent_hash: None, // TODO: calculate parent hash
+            uncles: block
+                .ghost_uncles
+                .iter()
+                .map(|ghost_uncle| {
+                    serde_json::json!({
+                        "block_hash": ghost_uncle.block_hash.0,
+                        "miner": ghost_uncle.miner,
+                    })
+                })
+                .collect(),
+        }
+    }
 }
 
 #[cfg(test)]

@@ -1,6 +1,6 @@
 use crate::{
     db::DbPool,
-    models::{self, Block, Event, Transaction},
+    models::{self, Block, Event, Transaction}, schema::blocks::chain_from,
 };
 use anyhow::Result;
 use chrono::NaiveDateTime;
@@ -49,6 +49,17 @@ impl BlockRepository {
             .map_err(anyhow::Error::msg)
     }
 
+    pub fn store_batch(&self, block_values: &[Block]) -> Result<Vec<Block>, anyhow::Error> {
+        use crate::schema::blocks::dsl::*;
+        let mut conn = self.pool.get().unwrap();
+        diesel::insert_into(blocks)
+            .values(block_values)
+            .on_conflict_do_nothing()
+            .returning(Block::as_returning())
+            .get_results(&mut conn)
+            .map_err(anyhow::Error::msg)
+    }
+
     pub fn update_block(&self, hash_val: &str, block: Block) -> Result<Block> {
         use crate::schema::blocks::dsl::*;
         let mut conn = self.pool.get().unwrap();
@@ -74,6 +85,17 @@ impl BlockRepository {
             .limit(limit)
             .offset(offset)
             .load::<Block>(&mut conn)
+            .map_err(anyhow::Error::msg)
+    }
+
+    pub fn get_latest_height(&self, chain_id: i64) -> Result<i64, anyhow::Error> {
+        use crate::schema::blocks::dsl::*;
+        let mut conn = self.pool.get().unwrap();
+        blocks
+            .filter(chain_from.eq(chain_id))
+            .select(height)
+            .order(height.desc())
+            .first::<i64>(&mut conn)
             .map_err(anyhow::Error::msg)
     }
 }
