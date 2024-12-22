@@ -4,7 +4,6 @@ use crate::{
     client::{Client, Network}, db::DbPool, models::Block, repository::{BlockRepository, EventRepository, TransactionRepository}, schema::transactions, types::TimestampRange, ws::WsClient
 };
 use async_trait::async_trait;
-use tokio_tungstenite::tungstenite::http::response;
 
 #[async_trait]
 pub trait BlockIndexer: Send + Sync {
