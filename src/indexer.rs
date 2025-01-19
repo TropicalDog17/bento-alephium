@@ -1,7 +1,7 @@
 use std::{env, time};
 
 use crate::{
-    client::{Client, Network}, db::DbPool, models::Block, repository::{BlockRepository, EventRepository, TransactionRepository}, schema::transactions, types::TimestampRange, ws::WsClient
+    client::{Client, Network}, db::DbPool, models::BlockModel, repository::{BlockRepository, EventRepository, TransactionRepository}, schema::transactions, types::TimestampRange, ws::WsClient
 };
 use async_trait::async_trait;
 
@@ -49,7 +49,7 @@ impl BlockIndexer for IndexerService {
         }
 
         let blocks_to_save = response.blocks.iter().flatten().map(|block_entry| {
-            Block::from((*block_entry).clone())
+            BlockModel::from((*block_entry).clone())
         }).collect::<Vec<_>>();
 
         self.blocks.store_batch(&blocks_to_save)?;

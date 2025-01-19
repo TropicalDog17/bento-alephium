@@ -94,7 +94,7 @@ fn test_crud_block() {
     dotenvy::from_path(".env.test").ok();
     let mock_block = mock_block();
 
-    let block = models::Block {
+    let block = models::BlockModel {
         hash: mock_block.hash.0.clone(),
         timestamp: NaiveDate::from_ymd_opt(2016, 7, 8).unwrap().and_hms_opt(9, 10, 11).unwrap(),
         chain_from: mock_block.chain_from,
@@ -118,7 +118,7 @@ fn test_crud_block() {
     insert_into(blocks).values(&block).execute(&mut conn).unwrap();
     let results = blocks
         .filter(hash.eq(mock_block.hash.0.clone()))
-        .select(models::Block::as_select())
+        .select(models::BlockModel::as_select())
         .load(&mut conn)
         .unwrap();
     println!("{:?}", results);
@@ -129,7 +129,7 @@ fn test_crud_block() {
 
     let results = blocks
         .filter(hash.eq(mock_block.hash.0.clone()))
-        .select(models::Block::as_select())
+        .select(models::BlockModel::as_select())
         .load(&mut conn)
         .unwrap();
 
@@ -144,7 +144,7 @@ fn test_crud_event() {
     dotenvy::from_path(".env.test").ok();
     let db_pool = initialize_db_pool();
     let mut conn = db_pool.get().unwrap();
-    let event = models::Event {
+    let event = models::EventModel {
         tx_id: "f8dd97f971f383f2554a075ac7665cf2a4280b12cea9f28bd63055c0de4764a1".to_string(),
         contract_address: "1AuWeE5Cwt2ES3473qnpKFV96z57CYL6mbTY7hva9Xz3h".to_string(),
         event_index: 0,
@@ -156,7 +156,7 @@ fn test_crud_event() {
             tx_id
                 .eq("f8dd97f971f383f2554a075ac7665cf2a4280b12cea9f28bd63055c0de4764a1".to_string()),
         )
-        .select(models::Event::as_select())
+        .select(models::EventModel::as_select())
         .load(&mut conn)
         .unwrap();
     println!("{:?}", results);
@@ -174,7 +174,7 @@ fn test_crud_event() {
             tx_id
                 .eq("f8dd97f971f383f2554a075ac7665cf2a4280b12cea9f28bd63055c0de4764a1".to_string()),
         )
-        .select(models::Event::as_select())
+        .select(models::EventModel::as_select())
         .load(&mut conn)
         .unwrap();
 
@@ -189,7 +189,7 @@ fn test_crud_transaction() {
     dotenvy::from_path(".env.test").ok();
     let db_pool = initialize_db_pool();
     let mut conn = db_pool.get().unwrap();
-    let transaction = models::Transaction {
+    let transaction = models::TransactionModel {
         tx_hash: "f8dd97f971f383f2554a075ac7665cf2a4280b12cea9f28bd63055c0de4764a1".to_string(),
         unsigned: serde_json::Value::String("{}".to_string()),
         script_execution_ok: true,
@@ -207,7 +207,7 @@ fn test_crud_transaction() {
             tx_hash
                 .eq("f8dd97f971f383f2554a075ac7665cf2a4280b12cea9f28bd63055c0de4764a1".to_string()),
         )
-        .select(models::Transaction::as_select())
+        .select(models::TransactionModel::as_select())
         .load(&mut conn)
         .unwrap();
     println!("{:?}", results);

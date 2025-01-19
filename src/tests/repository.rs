@@ -58,7 +58,7 @@ fn test_block_repository() {
     let repo = BlockRepository { pool: db_pool };
     let mock_block = mock_block();
 
-    let block = models::Block {
+    let block = models::BlockModel {
         hash: mock_block.hash.0.clone(),
         timestamp: NaiveDate::from_ymd_opt(2016, 7, 8).unwrap().and_hms_opt(9, 10, 11).unwrap(),
         chain_from: mock_block.chain_from,
@@ -110,7 +110,7 @@ fn test_event_repository() {
     let db_pool = initialize_db_pool();
     let repo = EventRepository { pool: db_pool };
 
-    let event = models::Event {
+    let event = models::EventModel {
         tx_id: "f8dd97f971f383f2554a075ac7665cf2a4280b12cea9f28bd63055c0de4764a4".to_string(),
         contract_address: "1AuWeE5Cwt2ES3473qnpKFV96z57CYL6mbTY7hva9Xz3h".to_string(),
         event_index: 0,
@@ -146,7 +146,7 @@ fn test_transaction_repository() {
     let db_pool = initialize_db_pool();
     let repo = TransactionRepository { pool: db_pool };
 
-    let transaction = models::Transaction {
+    let transaction = models::TransactionModel {
         tx_hash: "f8dd97f971f383f2554a075ac7665cf2a4280b12cea9f28bd63055c0de4764a4".to_string(),
         unsigned: json!({}),
         script_execution_ok: true,

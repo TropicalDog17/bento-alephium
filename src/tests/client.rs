@@ -1,6 +1,6 @@
 use crate::{
     client::{Client, Network},
-    models::Block,
+    models::BlockModel,
     types::BlockHash,
 };
 

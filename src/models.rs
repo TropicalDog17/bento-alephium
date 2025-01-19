@@ -6,12 +6,12 @@ use chrono::NaiveDateTime;
 use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
 
-use crate::types::{Output, OutputRef, UnsignedTx};
+use crate::types::{BlockEntry, Output, OutputRef, UnsignedTx};
 
 #[derive(Queryable, Selectable, Insertable, Debug, Clone, Serialize, AsChangeset)]
 #[diesel(table_name = crate::schema::blocks)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
-pub struct Block {
+pub struct BlockModel {
     pub hash: String,
     pub timestamp: NaiveDateTime,
     pub chain_from: i64,
@@ -33,7 +33,7 @@ pub struct Block {
 #[derive(Queryable, Selectable, Insertable, Debug, Clone, AsChangeset)]
 #[diesel(table_name = crate::schema::events)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
-pub struct Event {
+pub struct EventModel {
     pub tx_id: String,
     pub contract_address: String,
     pub event_index: i32,
@@ -43,7 +43,7 @@ pub struct Event {
 #[derive(Queryable, Selectable, Insertable, Debug, Clone, Serialize, Deserialize, AsChangeset)]
 #[diesel(table_name = crate::schema::transactions)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
-pub struct Transaction {
+pub struct TransactionModel {
     pub tx_hash: String,
     pub unsigned: serde_json::Value,
     pub script_execution_ok: bool,

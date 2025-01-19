@@ -3,8 +3,11 @@ use std::fmt;
 use bigdecimal::BigDecimal;
 use chrono::{DateTime, NaiveDateTime};
 use serde::{Deserialize, Serialize};
+use serde_json::json;
 
-use crate::models::Block as BlockModel;
+use crate::models::{BlockModel as BlockModel, EventModel, TransactionModel};
+
+pub type Event = ContractEventByBlockHash;
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Eq, Clone)]
 pub struct Hash(pub String);
@@ -79,7 +82,7 @@ pub struct BlocksAndEventsPerTimestampRange {
     pub blocks_and_events: Vec<Vec<BlockAndEvents>>,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Serialize, Clone)]
 pub enum Val {
     Address { value: String, typ: String },
     Array { value: Vec<Val>, typ: String },
@@ -89,7 +92,7 @@ pub enum Val {
     U256 { value: String, typ: String },
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct ContractEventByBlockHash {
     pub tx_id: String,
@@ -98,7 +101,7 @@ pub struct ContractEventByBlockHash {
     pub fields: Vec<Val>,
 }
 
-#[derive(Deserialize, Debug, Clone)]
+#[derive(Deserialize, Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct UnsignedTx {
     pub tx_id: String,
@@ -122,14 +125,14 @@ pub struct Transaction {
     pub script_signatures: Vec<String>,
 }
 
-#[derive(Deserialize, Debug, Clone)]
+#[derive(Deserialize, Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct OutputRef {
     pub hint: i32,
     pub key: String,
 }
 
-#[derive(Deserialize, Debug, Clone)]
+#[derive(Deserialize, Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Output {}
 
@@ -144,7 +147,7 @@ pub struct ContractOutput {
     pub typ: String,
 }
 
-#[derive(Deserialize, Debug, Clone)]
+#[derive(Deserialize, Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct AssetInput {
     pub output_ref: OutputRef,
@@ -164,14 +167,14 @@ pub struct AssetOutput {
     pub typ: String,
 }
 
-#[derive(Deserialize, Debug, Clone)]
+#[derive(Deserialize, Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Token {
     pub id: String,
     pub amount: String,
 }
 
-#[derive(Deserialize, Debug, Clone)]
+#[derive(Deserialize, Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct FixedAssetOutput {
     pub hint: i32,
@@ -215,6 +218,37 @@ impl From<BlockEntry> for BlockModel {
                     })
                 })
                 .collect(),
+        }
+    }
+}
+
+
+
+impl From<Event> for EventModel {
+    fn from(value: Event) -> Self {
+        EventModel {
+            tx_id: value.tx_id,
+            contract_address: value.contract_address,
+            event_index: value.event_index,
+            fields: json!(value.fields)
+        }
+    }
+}
+
+
+
+impl From<Transaction> for TransactionModel {
+    fn from(value: Transaction) -> Self {
+        TransactionModel {
+            tx_hash: value.unsigned.clone().tx_id,
+            unsigned: serde_json::json!(value.unsigned),
+            script_execution_ok: value.script_execution_ok,
+            contract_inputs: serde_json::json!(value.contract_inputs),
+            generated_outputs: serde_json::json!(value.generated_outputs),
+            input_signatures: value.input_signatures.iter().map(|s| Some(s.clone())).collect(),
+            script_signatures: value.script_signatures.iter().map(|s| Some(s.clone())).collect(),
+            created_at: None,
+            updated_at: None,
         }
     }
 }

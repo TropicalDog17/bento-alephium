@@ -1,6 +1,6 @@
 use crate::{
     db::DbPool,
-    models::{self, Block, Event, Transaction}, schema::blocks::chain_from,
+    models::{self, BlockModel, EventModel, TransactionModel}, schema::blocks::chain_from,
 };
 use anyhow::Result;
 use chrono::NaiveDateTime;
@@ -11,33 +11,33 @@ pub struct BlockRepository {
 }
 
 impl BlockRepository {
-    pub fn find_by_hashes(&self, hashes: Vec<String>) -> Result<Vec<Block>> {
+    pub fn find_by_hashes(&self, hashes: Vec<String>) -> Result<Vec<BlockModel>> {
         use crate::schema::blocks::dsl::*;
         let mut conn = self.pool.get().unwrap();
-        blocks.filter(hash.eq_any(hashes)).load::<Block>(&mut conn).map_err(anyhow::Error::msg)
+        blocks.filter(hash.eq_any(hashes)).load::<BlockModel>(&mut conn).map_err(anyhow::Error::msg)
     }
 
-    pub fn find_by_hash(&self, hash_val: &str) -> Result<Option<Block>> {
+    pub fn find_by_hash(&self, hash_val: &str) -> Result<Option<BlockModel>> {
         use crate::schema::blocks::dsl::*;
         let mut conn = self.pool.get().unwrap();
         blocks
             .filter(hash.eq(hash_val))
-            .first::<Block>(&mut conn)
+            .first::<BlockModel>(&mut conn)
             .optional()
             .map_err(anyhow::Error::msg)
     }
 
-    pub fn find_by_height(&self, height_val: i64) -> Result<Option<Block>> {
+    pub fn find_by_height(&self, height_val: i64) -> Result<Option<BlockModel>> {
         use crate::schema::blocks::dsl::*;
         let mut conn = self.pool.get().unwrap();
         blocks
             .filter(height.eq(height_val))
-            .first::<Block>(&mut conn)
+            .first::<BlockModel>(&mut conn)
             .optional()
             .map_err(anyhow::Error::msg)
     }
 
-    pub fn store_block(&self, block: Block) -> Result<Block> {
+    pub fn store_block(&self, block: BlockModel) -> Result<BlockModel> {
         use crate::schema::blocks::dsl::*;
         let mut conn = self.pool.get().unwrap();
         diesel::insert_into(blocks)
@@ -49,18 +49,18 @@ impl BlockRepository {
             .map_err(anyhow::Error::msg)
     }
 
-    pub fn store_batch(&self, block_values: &[Block]) -> Result<Vec<Block>, anyhow::Error> {
+    pub fn store_batch(&self, block_values: &[BlockModel]) -> Result<Vec<BlockModel>, anyhow::Error> {
         use crate::schema::blocks::dsl::*;
         let mut conn = self.pool.get().unwrap();
         diesel::insert_into(blocks)
             .values(block_values)
             .on_conflict_do_nothing()
-            .returning(Block::as_returning())
+            .returning(BlockModel::as_returning())
             .get_results(&mut conn)
             .map_err(anyhow::Error::msg)
     }
 
-    pub fn update_block(&self, hash_val: &str, block: Block) -> Result<Block> {
+    pub fn update_block(&self, hash_val: &str, block: BlockModel) -> Result<BlockModel> {
         use crate::schema::blocks::dsl::*;
         let mut conn = self.pool.get().unwrap();
         diesel::update(blocks.filter(hash.eq(hash_val)))
@@ -77,14 +77,14 @@ impl BlockRepository {
             .map_err(anyhow::Error::msg)
     }
 
-    pub fn list_blocks(&self, limit: i64, offset: i64) -> Result<Vec<Block>> {
+    pub fn list_blocks(&self, limit: i64, offset: i64) -> Result<Vec<BlockModel>> {
         use crate::schema::blocks::dsl::*;
         let mut conn = self.pool.get().unwrap();
         blocks
             .order(height.desc())
             .limit(limit)
             .offset(offset)
-            .load::<Block>(&mut conn)
+            .load::<BlockModel>(&mut conn)
             .map_err(anyhow::Error::msg)
     }
 
@@ -105,18 +105,18 @@ pub struct EventRepository {
 }
 
 impl EventRepository {
-    pub fn find_by_tx_id(&self, tx_id_val: &str) -> Result<Option<Event>> {
+    pub fn find_by_tx_id(&self, tx_id_val: &str) -> Result<Option<EventModel>> {
         use crate::schema::events::dsl::*;
         let mut conn = self.pool.get().unwrap();
         events
             .filter(tx_id.eq(tx_id_val))
-            .select(Event::as_select())
-            .first::<Event>(&mut conn)
+            .select(EventModel::as_select())
+            .first::<EventModel>(&mut conn)
             .optional()
             .map_err(anyhow::Error::msg)
     }
 
-    pub fn store_event(&self, event: Event) -> Result<Event> {
+    pub fn store_event(&self, event: EventModel) -> Result<EventModel> {
         use crate::schema::events::dsl::*;
         let mut conn = self.pool.get().unwrap();
         diesel::insert_into(events)
@@ -124,7 +124,7 @@ impl EventRepository {
             .on_conflict((tx_id, event_index))
             .do_update()
             .set(&event)
-            .returning(Event::as_select())
+            .returning(EventModel::as_select())
             .get_result(&mut conn)
             .map_err(anyhow::Error::msg)
     }
@@ -133,13 +133,13 @@ impl EventRepository {
         &self,
         tx_id_val: &str,
         event_index_val: i32,
-        event: Event,
-    ) -> Result<Event> {
+        event: EventModel,
+    ) -> Result<EventModel> {
         use crate::schema::events::dsl::*;
         let mut conn = self.pool.get().unwrap();
         diesel::update(events.filter(tx_id.eq(tx_id_val).and(event_index.eq(event_index_val))))
             .set(&event)
-            .returning(Event::as_select())
+            .returning(EventModel::as_select())
             .get_result(&mut conn)
             .map_err(anyhow::Error::msg)
     }
@@ -152,15 +152,15 @@ impl EventRepository {
             .map_err(anyhow::Error::msg)
     }
 
-    pub fn list_events(&self, limit: i64, offset: i64) -> Result<Vec<Event>> {
+    pub fn list_events(&self, limit: i64, offset: i64) -> Result<Vec<EventModel>> {
         use crate::schema::events::dsl::*;
         let mut conn = self.pool.get().unwrap();
         events
-            .select(Event::as_select())
+            .select(EventModel::as_select())
             .order(tx_id.desc())
             .limit(limit)
             .offset(offset)
-            .load::<Event>(&mut conn)
+            .load::<EventModel>(&mut conn)
             .map_err(anyhow::Error::msg)
     }
 }
@@ -170,17 +170,17 @@ pub struct TransactionRepository {
 }
 
 impl TransactionRepository {
-    pub fn find_by_hash(&self, hash_val: &str) -> Result<Option<Transaction>> {
+    pub fn find_by_hash(&self, hash_val: &str) -> Result<Option<TransactionModel>> {
         use crate::schema::transactions::dsl::*;
         let mut conn = self.pool.get().unwrap();
         transactions
             .filter(tx_hash.eq(hash_val))
-            .first::<Transaction>(&mut conn)
+            .first::<TransactionModel>(&mut conn)
             .optional()
             .map_err(anyhow::Error::msg)
     }
 
-    pub fn store_transaction(&self, transaction: Transaction) -> Result<Transaction> {
+    pub fn store_transaction(&self, transaction: TransactionModel) -> Result<TransactionModel> {
         use crate::schema::transactions::dsl::*;
         let mut conn = self.pool.get().unwrap();
         diesel::insert_into(transactions)
@@ -195,8 +195,8 @@ impl TransactionRepository {
     pub fn update_transaction(
         &self,
         hash_val: &str,
-        transaction: Transaction,
-    ) -> Result<Transaction> {
+        transaction: TransactionModel,
+    ) -> Result<TransactionModel> {
         use crate::schema::transactions::dsl::*;
         let mut conn = self.pool.get().unwrap();
         diesel::update(transactions.filter(tx_hash.eq(hash_val)))
@@ -213,14 +213,14 @@ impl TransactionRepository {
             .map_err(anyhow::Error::msg)
     }
 
-    pub fn list_transactions(&self, limit: i64, offset: i64) -> Result<Vec<Transaction>> {
+    pub fn list_transactions(&self, limit: i64, offset: i64) -> Result<Vec<TransactionModel>> {
         use crate::schema::transactions::dsl::*;
         let mut conn = self.pool.get().unwrap();
         transactions
             .order(tx_hash.desc())
             .limit(limit)
             .offset(offset)
-            .load::<Transaction>(&mut conn)
+            .load::<TransactionModel>(&mut conn)
             .map_err(anyhow::Error::msg)
     }
 }

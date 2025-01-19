@@ -6,6 +6,8 @@ pub mod repository;
 pub mod schema;
 pub mod types;
 pub mod ws;
+pub mod processors;
+
 
 #[cfg(test)]
 mod tests;
