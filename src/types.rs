@@ -4,6 +4,7 @@ use bigdecimal::BigDecimal;
 use chrono::{DateTime, NaiveDateTime};
 use serde::{Deserialize, Serialize};
 use serde_json::json;
+use allocative_derive::Allocative;
 
 use crate::models::{BlockModel as BlockModel, EventModel, TransactionModel};
 
