@@ -1,17 +1,15 @@
 pub enum ProcessorConfig {
     DefaultProcessor,
-    EventProcessor,
     TransactionProcessor,
-    BlockProcessor,
+    BlockEventProcessor,
 }
 
 impl ProcessorConfig {
     pub fn name(&self) -> &'static str {
         match self {
             ProcessorConfig::DefaultProcessor => "default_processor",
-            ProcessorConfig::EventProcessor => "event_processor",
             ProcessorConfig::TransactionProcessor => "transaction_processor",
-            ProcessorConfig::BlockProcessor => "block_processor",
+            ProcessorConfig::BlockEventProcessor => "block_event_processor",
         }
     }
 }

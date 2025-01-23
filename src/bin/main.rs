@@ -16,7 +16,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
     let mut worker = Worker::new(
-        ProcessorConfig::BlockProcessor,
+        ProcessorConfig::BlockEventProcessor,
         database_url,
         Network::Mainnet,
         None,

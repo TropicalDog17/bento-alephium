@@ -4,16 +4,14 @@ use crate::{
 };
 use anyhow::Result;
 use async_trait::async_trait;
-use block_processor::BlockProcessor;
+use block_event_processor::BlockEventProcessor;
 use default_processor::DefaultProcessor;
 use diesel_async::{pooled_connection::bb8::Pool, AsyncPgConnection};
-use event_processor::EventProcessor;
 use std::{fmt::Debug, sync::Arc};
 use transaction_processor::TransactionProcessor;
 
-pub mod block_processor;
+pub mod block_event_processor;
 pub mod default_processor;
-pub mod event_processor;
 pub mod transaction_processor;
 
 /// Base trait for all processors
@@ -59,9 +57,8 @@ pub trait ProcessorTrait: Send + Sync + Debug {
 
 #[derive(Debug)]
 pub enum Processor {
-    BlockProcessor(BlockProcessor),
+    BlockProcessor(BlockEventProcessor),
     DefaultProcessor(DefaultProcessor),
-    EventProcessor(EventProcessor),
     TransactionProcessor(TransactionProcessor),
 }
 
@@ -70,7 +67,6 @@ impl ProcessorTrait for Processor {
     fn connection_pool(&self) -> &Arc<DbPool> {
         match self {
             Processor::DefaultProcessor(p) => p.connection_pool(),
-            Processor::EventProcessor(p) => p.connection_pool(),
             Processor::TransactionProcessor(p) => p.connection_pool(),
             Processor::BlockProcessor(p) => p.connection_pool(),
         }
@@ -79,7 +75,6 @@ impl ProcessorTrait for Processor {
     fn name(&self) -> &'static str {
         match self {
             Processor::DefaultProcessor(p) => p.name(),
-            Processor::EventProcessor(p) => p.name(),
             Processor::TransactionProcessor(p) => p.name(),
             Processor::BlockProcessor(p) => p.name(),
         }
@@ -93,7 +88,6 @@ impl ProcessorTrait for Processor {
     ) -> Result<()> {
         match self {
             Processor::DefaultProcessor(p) => p.process_blocks(from_ts, to_ts, blocks).await,
-            Processor::EventProcessor(p) => p.process_blocks(from_ts, to_ts, blocks).await,
             Processor::TransactionProcessor(p) => p.process_blocks(from_ts, to_ts, blocks).await,
             Processor::BlockProcessor(p) => p.process_blocks(from_ts, to_ts, blocks).await,
         }
