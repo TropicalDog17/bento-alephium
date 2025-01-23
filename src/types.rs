@@ -1,12 +1,5 @@
-use std::fmt;
-
-use bigdecimal::BigDecimal;
-use chrono::{DateTime, NaiveDateTime};
 use serde::{Deserialize, Serialize};
-use serde_json::json;
-use allocative_derive::Allocative;
-
-use crate::models::{BlockModel as BlockModel, EventModel, TransactionModel};
+use std::fmt;
 
 pub type Event = ContractEventByBlockHash;
 
@@ -55,6 +48,15 @@ pub struct BlockEntry {
     pub txs_hash: Hash,
     pub target: String,
     pub ghost_uncles: Vec<GhostUncleBlockEntry>,
+}
+
+#[derive(Deserialize, Debug, Clone)]
+pub struct LatestBlock {
+    pub hash: BlockHash,
+    pub timestamp: i64,
+    pub chain_from: i64,
+    pub chain_to: i64,
+    pub height: i64,
 }
 
 #[derive(Deserialize, Debug, Clone)]
@@ -187,71 +189,10 @@ pub struct FixedAssetOutput {
     pub message: String,
 }
 
+#[derive(Deserialize, Debug, Clone, Serialize)]
 pub struct TimestampRange {
-    from: u64,
-    to: u64,
-}
-impl From<BlockEntry> for BlockModel {
-    fn from(block: BlockEntry) -> Self {
-        BlockModel {
-            hash: block.hash.0,
-            timestamp: DateTime::from_timestamp_millis(block.timestamp).unwrap().naive_utc(),
-            chain_from: block.chain_from,
-            chain_to: block.chain_to,
-            height: block.height,
-            tx_number: block.transactions.len() as i64,
-            main_chain: block.chain_from == block.chain_to, 
-            deps: Some(block.deps.iter().map(|hash| Some(hash.0.clone())).collect()),
-            nonce: block.nonce.clone(),
-            version: block.version.to_string(),
-            dep_state_hash: block.dep_state_hash.0.clone(),
-            txs_hash: block.txs_hash.0.clone(),
-            target: block.target.clone(),
-            hash_rate: BigDecimal::default(), // TODO: calculate hash rate
-            parent_hash: None, // TODO: calculate parent hash
-            uncles: block
-                .ghost_uncles
-                .iter()
-                .map(|ghost_uncle| {
-                    serde_json::json!({
-                        "block_hash": ghost_uncle.block_hash.0,
-                        "miner": ghost_uncle.miner,
-                    })
-                })
-                .collect(),
-        }
-    }
-}
-
-
-
-impl From<Event> for EventModel {
-    fn from(value: Event) -> Self {
-        EventModel {
-            tx_id: value.tx_id,
-            contract_address: value.contract_address,
-            event_index: value.event_index,
-            fields: json!(value.fields)
-        }
-    }
-}
-
-
-
-impl From<Transaction> for TransactionModel {
-    fn from(value: Transaction) -> Self {
-        TransactionModel {
-            tx_hash: value.unsigned.clone().tx_id,
-            unsigned: serde_json::json!(value.unsigned),
-            script_execution_ok: value.script_execution_ok,
-            contract_inputs: serde_json::json!(value.contract_inputs),
-            generated_outputs: serde_json::json!(value.generated_outputs),
-            input_signatures: value.input_signatures.iter().map(|s| Some(s.clone())).collect(),
-            script_signatures: value.script_signatures.iter().map(|s| Some(s.clone())).collect(),
-            created_at: None,
-            updated_at: None,
-        }
-    }
+    pub from: u64,
+    pub to: u64,
 }
 
 #[cfg(test)]

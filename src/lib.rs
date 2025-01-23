@@ -1,13 +1,9 @@
 pub mod client;
+pub mod config;
 pub mod db;
-pub mod indexer;
 pub mod models;
-pub mod repository;
+pub mod processors;
 pub mod schema;
 pub mod types;
+pub mod worker;
 pub mod ws;
-pub mod processors;
-
-
-#[cfg(test)]
-mod tests;
