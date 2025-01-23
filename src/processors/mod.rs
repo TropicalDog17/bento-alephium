@@ -57,24 +57,6 @@ pub trait ProcessorTrait: Send + Sync + Debug {
     }
 }
 
-#[async_trait]
-pub trait Processable
-where
-    Self: Send + Sized + 'static,
-{
-    type Input: Send + 'static;
-    type Output: Send + 'static;
-
-    /// Lifecycle methods
-    async fn init(&mut self) {}
-    async fn cleanup(&mut self) -> Result<Option<Vec<Self::Output>>> {
-        Ok(None)
-    }
-
-    /// Processes a batch of input items and returns a batch of output items.
-    async fn process(&mut self, items: Self::Input) -> Result<Option<Self::Output>>;
-}
-
 #[derive(Debug)]
 pub enum Processor {
     BlockProcessor(BlockProcessor),

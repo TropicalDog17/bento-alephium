@@ -85,23 +85,13 @@ pub struct BlocksAndEventsPerTimestampRange {
     pub blocks_and_events: Vec<Vec<BlockAndEvents>>,
 }
 
-#[derive(Deserialize, Debug, Serialize, Clone)]
-pub enum Val {
-    Address { value: String, typ: String },
-    Array { value: Vec<Val>, typ: String },
-    Bool { value: bool, typ: String },
-    ByteVec { value: String, typ: String },
-    I256 { value: String, typ: String },
-    U256 { value: String, typ: String },
-}
-
 #[derive(Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct ContractEventByBlockHash {
     pub tx_id: String,
     pub contract_address: String,
     pub event_index: i32,
-    pub fields: Vec<Val>,
+    pub fields: Vec<serde_json::Value>,
 }
 
 #[derive(Deserialize, Debug, Clone, Serialize)]

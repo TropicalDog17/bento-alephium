@@ -1,5 +1,6 @@
 use anyhow::{Context, Result};
-use std::sync::Arc;
+use std::{sync::Arc, time::Duration};
+use tokio::time::sleep;
 
 use crate::{
     client::{Client, Network},
@@ -15,9 +16,9 @@ use crate::{
 #[derive(Debug, Default)]
 pub struct SyncOptions {
     pub start_ts: Option<i64>,
-    pub end_ts: Option<i64>,
     pub step: Option<i64>,
     pub back_step: Option<i64>,
+    pub sync_duration: Option<i64>,
 }
 
 /// Worker manages the lifecycle of a processor.
@@ -85,17 +86,59 @@ impl Worker {
             "Finished migrations"
         );
 
-        let from_ts = self.sync_opts.start_ts.unwrap_or(0);
-        let to_ts = self.sync_opts.end_ts.unwrap_or(0);
+        // Initialize sync parameters
+        let mut current_ts = self.sync_opts.start_ts.unwrap_or(0);
+        let step = self.sync_opts.step.unwrap_or(1000);
+        let sync_duration = Duration::from_secs(self.sync_opts.sync_duration.unwrap_or(1) as u64);
 
         let processor = build_processor(&self.processor_config, self.db_pool.clone());
 
-        let blocks =
-            self.client.get_blocks_and_events(from_ts as u128, to_ts as u128).await.unwrap();
+        loop {
+            let to_ts = current_ts + step;
 
-        processor.process_blocks(from_ts, to_ts, blocks.blocks_and_events).await.unwrap();
+            tracing::info!(
+                processor_name = processor_name,
+                from_ts = current_ts,
+                to_ts = to_ts,
+                "Syncing blocks"
+            );
+            // Fetch blocks
+            match self.client.get_blocks_and_events(current_ts as u128, to_ts as u128).await {
+                Ok(blocks) => {
+                    tracing::info!(
+                        processor_name = processor_name,
+                        block_count = blocks.blocks_and_events.len(),
+                        "Found blocks"
+                    );
+                    if let Err(err) =
+                        processor.process_blocks(current_ts, to_ts, blocks.blocks_and_events).await
+                    {
+                        tracing::error!(
+                            processor_name = processor_name,
+                            error = ?err,
+                            "Error processing blocks, retrying in {:?}",
+                            sync_duration
+                        );
+                        sleep(sync_duration).await;
+                        continue;
+                    }
+                    current_ts = to_ts;
+                }
+                Err(err) => {
+                    tracing::error!(
+                        processor_name = processor_name,
+                        error = ?err,
+                        "Error fetching blocks, retrying in {:?}",
+                        sync_duration
+                    );
+                    sleep(sync_duration).await;
+                    continue;
+                }
+            }
 
-        tracing::info!(processor_name = processor_name, "Stopping worker");
+            tracing::info!(processor_name = processor_name, "Sleeping for {:?}", sync_duration);
+            sleep(sync_duration).await;
+        }
     }
 
     // For the normal processor build we just use standard Diesel with the postgres
