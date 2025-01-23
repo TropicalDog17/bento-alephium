@@ -1,6 +1,9 @@
 use diesel::ConnectionResult;
 use diesel_async::{
-    pooled_connection::{bb8::{Pool, PooledConnection}, AsyncDieselConnectionManager, ManagerConfig, PoolError},
+    pooled_connection::{
+        bb8::{Pool, PooledConnection},
+        AsyncDieselConnectionManager, ManagerConfig, PoolError,
+    },
     AsyncPgConnection,
 };
 use diesel_migrations::{embed_migrations, EmbeddedMigrations, MigrationHarness};
@@ -8,16 +11,10 @@ use futures_util::{future::BoxFuture, FutureExt};
 use std::sync::Arc;
 
 pub const MIGRATIONS: EmbeddedMigrations = embed_migrations!("./migrations");
-
 pub const DEFAULT_MAX_POOL_SIZE: u32 = 150;
 
 pub type DbPool = Pool<AsyncPgConnection>;
 pub type DbPoolConnection<'a> = PooledConnection<'a, AsyncPgConnection>;
-
-
-/// The max is actually u16::MAX but we see that when the size is too big we get
-/// an overflow error so reducing it a bit
-pub const MAX_DIESEL_PARAM_SIZE: usize = (u16::MAX / 2) as usize;
 
 fn establish_connection(database_url: &str) -> BoxFuture<ConnectionResult<AsyncPgConnection>> {
     use native_tls::{Certificate, TlsConnector};
@@ -84,8 +81,6 @@ pub async fn new_db_pool(
     Ok(Arc::new(pool))
 }
 
-
 pub fn run_pending_migrations<DB: diesel::backend::Backend>(conn: &mut impl MigrationHarness<DB>) {
-    conn.run_pending_migrations(MIGRATIONS)
-        .expect("[Parser] Migrations failed!");
+    conn.run_pending_migrations(MIGRATIONS).expect("[Parser] Migrations failed!");
 }
