@@ -32,5 +32,3 @@ task up
 You can find more details on the *Taskfile.yml* file.
 
 Remember the docker-compose has support to hot-reload so if you change the source code, the application will be reloaded.
-
-
