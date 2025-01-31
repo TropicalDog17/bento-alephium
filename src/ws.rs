@@ -65,7 +65,7 @@ impl<T: AsyncRead + AsyncWrite + Unpin> ConnectionState<T> {
             params_str = format!("\"params\": [{params}],", params = params_str)
         };
 
-        let id: u64 = self.id.clone();
+        let id: u64 = self.id;
         self.id += 1;
 
         let s: String = format!(

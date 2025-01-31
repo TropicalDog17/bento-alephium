@@ -9,7 +9,7 @@ use diesel::prelude::*;
 use diesel::{dsl::insert_into, RunQueryDsl};
 
 fn mock_block() -> BlockEntry {
-    return BlockEntry {
+    BlockEntry {
         hash: BlockHash(
             "000000406321d177ccb6bedcb3910c60494a9e6c0259a85c7ab40e7c66c5b8b0".to_string(),
         ),
@@ -77,7 +77,7 @@ fn mock_block() -> BlockEntry {
         ),
         target: "1d6cdf2d".to_string(),
         ghost_uncles: vec![],
-    };
+    }
 }
 
 #[test]
