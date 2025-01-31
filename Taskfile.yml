@@ -8,7 +8,7 @@ tasks:
       - docker-compose -f docker-compose.yml up --build
 
   # Stop the application and remove volumes (database)
-  down:
+  down-and-remove-volumes:
     desc: Stop the application and remove volumes
     cmds:
       - docker-compose down --volumes --remove-orphans
