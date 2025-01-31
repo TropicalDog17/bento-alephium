@@ -1,12 +1,7 @@
-use bigdecimal::{
-    num_bigint::{BigInt, BigUint},
-    BigDecimal,
-};
+use bigdecimal::BigDecimal;
 use chrono::NaiveDateTime;
 use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
-
-use crate::types::{Output, OutputRef, UnsignedTx};
 
 #[derive(Queryable, Selectable, Insertable, Debug, Clone, Serialize, AsChangeset)]
 #[diesel(table_name = crate::schema::blocks)]

@@ -1,9 +1,8 @@
 use crate::{
     db::DbPool,
-    models::{self, Block, Event, Transaction},
+    models::{Block, Event, Transaction},
 };
 use anyhow::Result;
-use chrono::NaiveDateTime;
 use diesel::prelude::*;
 
 pub struct BlockRepository {
