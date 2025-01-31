@@ -2,7 +2,7 @@ use crate::{
     db::initialize_db_pool,
     models,
     repository::{BlockRepository, EventRepository, TransactionRepository},
-    types::{BlockEntry, BlockHash, FixedAssetOutput, Hash, Transaction, UnsignedTx},
+    types::{BlockEntry, BlockHash, Hash, Transaction, UnsignedTx},
 };
 use bigdecimal::{BigDecimal, FromPrimitive};
 use chrono::NaiveDate;

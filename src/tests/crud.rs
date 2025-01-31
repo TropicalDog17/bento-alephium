@@ -1,17 +1,12 @@
-use std::env;
-
 use crate::{
     db::initialize_db_pool,
     models,
-    schema::blocks,
     types::{BlockEntry, BlockHash, FixedAssetOutput, Hash, Transaction, UnsignedTx},
 };
 use bigdecimal::{BigDecimal, FromPrimitive};
-use chrono::TimeZone;
-use chrono::{NaiveDate, NaiveDateTime};
+use chrono::NaiveDate;
 use diesel::prelude::*;
 use diesel::{dsl::insert_into, RunQueryDsl};
-use reqwest::Client;
 
 fn mock_block() -> BlockEntry {
     return BlockEntry {
