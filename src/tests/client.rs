@@ -20,7 +20,10 @@ async fn test_get_blocks_and_events() {
         testnet_client.get_blocks_and_events(1734442735405, 1734442740808).await.unwrap();
 
     assert_eq!(block_and_event_range.blocks_and_events.len(), 16);
-    assert_eq!(block_and_event_range.blocks_and_events.iter().filter(|&b| !b.is_empty()).count(), 8);
+    assert_eq!(
+        block_and_event_range.blocks_and_events.iter().filter(|&b| !b.is_empty()).count(),
+        8
+    );
 }
 
 #[tokio::test]
