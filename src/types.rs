@@ -1,68 +1,49 @@
 use serde::{Deserialize, Serialize};
-use std::fmt;
 
 pub type Event = ContractEventByBlockHash;
-
-#[derive(Serialize, Deserialize, Debug, PartialEq, Eq, Clone)]
-pub struct Hash(pub String);
-
-impl fmt::Display for Hash {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self.0)
-    }
-}
-
-#[derive(Serialize, Deserialize, Debug, PartialEq, Eq, Clone)]
-pub struct BlockHash(pub String);
-
-impl fmt::Display for BlockHash {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self.0)
-    }
-}
 
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct BlockHeaderEntry {
-    pub hash: BlockHash,
+    pub hash: String,
     pub timestamp: i64,
     pub chain_from: i64,
     pub chain_to: i64,
     pub height: i64,
-    pub deps: Vec<BlockHash>,
+    pub deps: Vec<String>,
 }
 
 #[derive(Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct BlockEntry {
-    pub hash: BlockHash,
+    pub hash: String,
     pub timestamp: i64,
     pub chain_from: i64,
     pub chain_to: i64,
     pub height: i64,
-    pub deps: Vec<BlockHash>,
+    pub deps: Vec<String>,
     pub transactions: Vec<Transaction>,
     pub nonce: String,
     pub version: i8,
-    pub dep_state_hash: Hash,
-    pub txs_hash: Hash,
+    pub dep_state_hash: String,
+    pub txs_hash: String,
     pub target: String,
     pub ghost_uncles: Vec<GhostUncleBlockEntry>,
 }
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct LatestBlock {
-    pub hash: BlockHash,
+    pub hash: String,
     pub timestamp: i64,
     pub chain_from: i64,
     pub chain_to: i64,
     pub height: i64,
 }
 
-#[derive(Deserialize, Debug, Clone)]
+#[derive(Deserialize, Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct GhostUncleBlockEntry {
-    pub block_hash: BlockHash,
+    pub block_hash: String,
     pub miner: String,
 }
 
@@ -192,16 +173,14 @@ mod tests {
 
     #[test]
     fn test_hash_display() {
-        let hash =
-            Hash("00000000000006f8c2bcaac93c5a23df8fba7119ba139d80a49d0303bbf84850".to_string());
+        let hash = "00000000000006f8c2bcaac93c5a23df8fba7119ba139d80a49d0303bbf84850".to_string();
         assert_eq!(
             format!("{}", hash),
             "00000000000006f8c2bcaac93c5a23df8fba7119ba139d80a49d0303bbf84850"
         );
 
-        let block_hash = BlockHash(
-            "00000000000006f8c2bcaac93c5a23df8fba7119ba139d80a49d0303bbf84850".to_string(),
-        );
+        let block_hash =
+            "00000000000006f8c2bcaac93c5a23df8fba7119ba139d80a49d0303bbf84850".to_string();
         assert_eq!(
             format!("{}", block_hash),
             "00000000000006f8c2bcaac93c5a23df8fba7119ba139d80a49d0303bbf84850"
@@ -233,23 +212,20 @@ mod tests {
 
         let block: BlockEntry = serde_json::from_value(json_data).unwrap();
 
-        assert_eq!(
-            block.hash.0,
-            "00000000000006f8c2bcaac93c5a23df8fba7119ba139d80a49d0303bbf84850"
-        );
+        assert_eq!(block.hash, "00000000000006f8c2bcaac93c5a23df8fba7119ba139d80a49d0303bbf84850");
         assert_eq!(block.timestamp, 1672531200);
         assert_eq!(block.chain_from, 1);
         assert_eq!(block.chain_to, 2);
         assert_eq!(block.height, 1000);
         assert_eq!(block.deps.len(), 2);
-        assert_eq!(block.deps[0].0, "hash1");
+        assert_eq!(block.deps[0], "hash1");
         assert_eq!(block.nonce, "nonce_value");
         assert_eq!(block.version, 1);
-        assert_eq!(block.dep_state_hash.0, "dep_hash");
-        assert_eq!(block.txs_hash.0, "txs_hash");
+        assert_eq!(block.dep_state_hash, "dep_hash");
+        assert_eq!(block.txs_hash, "txs_hash");
         assert_eq!(block.target, "target_value");
         assert_eq!(block.ghost_uncles.len(), 1);
-        assert_eq!(block.ghost_uncles[0].block_hash.0, "unclehash1");
+        assert_eq!(block.ghost_uncles[0].block_hash, "unclehash1");
         assert_eq!(block.ghost_uncles[0].miner, "miner1");
     }
 
@@ -312,6 +288,6 @@ mod tests {
 
         assert_eq!(blocks_and_events.blocks_and_events.len(), 1);
         let block_and_event = &blocks_and_events.blocks_and_events[0][0];
-        assert_eq!(block_and_event.block.hash.0, "blockhash123");
+        assert_eq!(block_and_event.block.hash, "blockhash123");
     }
 }

@@ -5,5 +5,6 @@ pub mod models;
 pub mod processors;
 pub mod schema;
 pub mod types;
+pub mod utils;
 pub mod worker;
 pub mod ws;

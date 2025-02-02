@@ -11,11 +11,7 @@ CREATE TABLE blocks (
     txs_hash TEXT NOT NULL,
     tx_number BIGINT NOT NULL,
     target TEXT NOT NULL,
-    main_chain BOOLEAN NOT NULL,
-    hash_rate NUMERIC NOT NULL,
-    parent_hash TEXT,
-    uncles JSONB NOT NULL DEFAULT '[]',
+    ghost_uncles JSONB NOT NULL DEFAULT '[]',
     CONSTRAINT height_positive CHECK (height >= 0),
-    CONSTRAINT tx_number_positive CHECK (tx_number >= 0),
-    CONSTRAINT hash_rate_positive CHECK (hash_rate >= 0)
+    CONSTRAINT tx_number_positive CHECK (tx_number >= 0)
 );

@@ -1,4 +1,3 @@
-use bigdecimal::BigDecimal;
 use chrono::NaiveDateTime;
 use diesel::prelude::*;
 use serde::Serialize;
@@ -19,8 +18,5 @@ pub struct BlockModel {
     pub txs_hash: String,
     pub tx_number: i64,
     pub target: String,
-    pub main_chain: bool,
-    pub hash_rate: BigDecimal,
-    pub parent_hash: Option<String>,
-    pub uncles: serde_json::Value,
+    pub ghost_uncles: serde_json::Value,
 }

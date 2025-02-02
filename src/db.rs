@@ -13,9 +13,13 @@ use std::sync::Arc;
 pub const MIGRATIONS: EmbeddedMigrations = embed_migrations!("./migrations");
 pub const DEFAULT_MAX_POOL_SIZE: u32 = 150;
 
+// Database pool type aliases
 pub type DbPool = Pool<AsyncPgConnection>;
+
+// Database pool connection type aliases
 pub type DbPoolConnection<'a> = PooledConnection<'a, AsyncPgConnection>;
 
+// Establish a connection to the database
 fn establish_connection(database_url: &str) -> BoxFuture<ConnectionResult<AsyncPgConnection>> {
     use native_tls::{Certificate, TlsConnector};
     use postgres_native_tls::MakeTlsConnector;
@@ -44,6 +48,7 @@ fn establish_connection(database_url: &str) -> BoxFuture<ConnectionResult<AsyncP
     .boxed()
 }
 
+// Parse the database URL and remove the sslrootcert parameter
 fn parse_and_clean_db_url(url: &str) -> (String, Option<String>) {
     let mut db_url = url::Url::parse(url).expect("Could not parse database url");
     let mut cert_path = None;
@@ -61,6 +66,7 @@ fn parse_and_clean_db_url(url: &str) -> (String, Option<String>) {
     (db_url.to_string(), cert_path)
 }
 
+// Create a new database pool
 pub async fn new_db_pool(
     database_url: &str,
     max_pool_size: Option<u32>,
@@ -81,6 +87,7 @@ pub async fn new_db_pool(
     Ok(Arc::new(pool))
 }
 
+// Run pending migrations
 pub fn run_pending_migrations<DB: diesel::backend::Backend>(conn: &mut impl MigrationHarness<DB>) {
     conn.run_pending_migrations(MIGRATIONS).expect("[Parser] Migrations failed!");
 }

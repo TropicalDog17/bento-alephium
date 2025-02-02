@@ -1,4 +1,5 @@
 use std::env;
+use std::error::Error;
 
 use bento_alephium::{
     client::Network,
@@ -7,7 +8,7 @@ use bento_alephium::{
 };
 
 #[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error>> {
+async fn main() -> Result<(), Box<dyn Error>> {
     // Load .env file
     dotenvy::dotenv().ok();
 

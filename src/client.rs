@@ -1,5 +1,5 @@
 use crate::types::{
-    BlockAndEvents, BlockEntry, BlockHash, BlockHeaderEntry, BlocksAndEventsPerTimestampRange,
+    BlockAndEvents, BlockEntry, BlockHeaderEntry, BlocksAndEventsPerTimestampRange,
     BlocksPerTimestampRange, Transaction,
 };
 use anyhow::Result;
@@ -62,7 +62,7 @@ impl Client {
 
     // Get a block with hash.
     // GET:/blockflow/blocks/{block_hash}
-    pub async fn get_block(&self, block_hash: &BlockHash) -> Result<BlockEntry> {
+    pub async fn get_block(&self, block_hash: &String) -> Result<BlockEntry> {
         let endpoint = format!("blockflow/blocks/{}", block_hash);
         let url = Url::parse(&format!("{}/{}", self.base_url, endpoint))?;
         let response = self.inner.get(url).send().await?.json().await?;
@@ -73,7 +73,7 @@ impl Client {
     // GET:/blockflow/blocks-with-events/{block_hash}
     pub async fn get_block_and_events_by_hash(
         &self,
-        block_hash: &BlockHash,
+        block_hash: &String,
     ) -> Result<BlockAndEvents> {
         let endpoint = format!("blockflow/blocks-with-events/{}", block_hash);
         let url = Url::parse(&format!("{}/{}", self.base_url, endpoint))?;
@@ -83,7 +83,7 @@ impl Client {
 
     // Get block header.
     // GET:/blockflow/headers/{block_hash}
-    pub async fn get_block_header(&self, block_hash: &BlockHash) -> Result<BlockHeaderEntry> {
+    pub async fn get_block_header(&self, block_hash: &String) -> Result<BlockHeaderEntry> {
         let endpoint = format!("blockflow/headers/{}", block_hash);
         let url = Url::parse(&format!("{}/{}", self.base_url, endpoint))?;
         let response = self.inner.get(url).send().await?.json().await?;
