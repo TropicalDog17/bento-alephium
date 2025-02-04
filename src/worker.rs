@@ -122,7 +122,7 @@ impl Worker {
                         sleep(sync_duration).await;
                         continue;
                     }
-                    current_ts = to_ts;
+                    current_ts = to_ts+1;
                 }
                 Err(err) => {
                     tracing::error!(

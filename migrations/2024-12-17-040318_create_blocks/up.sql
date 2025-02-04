@@ -4,7 +4,7 @@ CREATE TABLE blocks (
     chain_from BIGINT NOT NULL,
     chain_to BIGINT NOT NULL,
     height BIGINT NOT NULL,
-    deps TEXT[],
+    deps TEXT [],
     nonce TEXT NOT NULL,
     version TEXT NOT NULL,
     dep_state_hash TEXT NOT NULL,
@@ -12,6 +12,5 @@ CREATE TABLE blocks (
     tx_number BIGINT NOT NULL,
     target TEXT NOT NULL,
     ghost_uncles JSONB NOT NULL DEFAULT '[]',
-    CONSTRAINT height_positive CHECK (height >= 0),
-    CONSTRAINT tx_number_positive CHECK (tx_number >= 0)
+    CONSTRAINT height_positive CHECK (height >= 0)
 );

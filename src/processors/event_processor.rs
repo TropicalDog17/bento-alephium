@@ -52,6 +52,11 @@ impl ProcessorTrait for EventProcessor {
         // Process blocks and insert to db
         let models = convert_to_model(blocks);
         if !models.is_empty() {
+            tracing::info!(
+                processor_name = ?self.name(),
+                count = ?models.len(),
+                "Found models to insert"
+            );
             insert_to_db(self.connection_pool.clone(), models).await?;
         }
         Ok(())
