@@ -1,5 +1,5 @@
-use std::fmt;
 use serde::{Deserialize, Serialize};
+use std::fmt;
 
 /// A wrapper type for representing a generic hash.
 /// Implements `Display` to output the hash as a string.
@@ -28,12 +28,12 @@ impl fmt::Display for BlockHash {
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct BlockHeaderEntry {
-    pub hash: BlockHash,                // The hash of the block.
-    pub timestamp: i64,                 // The timestamp of when the block was created.
-    pub chain_from: i64,                // The start range of the chain.
-    pub chain_to: i64,                  // The end range of the chain.
-    pub height: i64,                    // The block height in the chain.
-    pub deps: Vec<BlockHash>,           // The dependencies of the block.
+    pub hash: BlockHash,      // The hash of the block.
+    pub timestamp: i64,       // The timestamp of when the block was created.
+    pub chain_from: i64,      // The start range of the chain.
+    pub chain_to: i64,        // The end range of the chain.
+    pub height: i64,          // The block height in the chain.
+    pub deps: Vec<BlockHash>, // The dependencies of the block.
 }
 
 /// Represents a complete block entry with transaction details.
@@ -41,18 +41,18 @@ pub struct BlockHeaderEntry {
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct BlockEntry {
-    pub hash: BlockHash,                // The hash of the block.
-    pub timestamp: i64,                 // The timestamp when the block was created.
-    pub chain_from: i64,                // The start range of the chain.
-    pub chain_to: i64,                  // The end range of the chain.
-    pub height: i64,                    // The block height.
-    pub deps: Vec<BlockHash>,           // The block dependencies.
-    pub transactions: Vec<Transaction>, // The list of transactions in this block.
-    pub nonce: String,                  // A unique nonce for the block.
-    pub version: i8,                    // The version of the block.
-    pub dep_state_hash: Hash,           // The state hash of the block dependencies.
-    pub txs_hash: Hash,                 // The hash of the transactions in the block.
-    pub target: String,                 // The target block for the chain.
+    pub hash: BlockHash,                         // The hash of the block.
+    pub timestamp: i64,                          // The timestamp when the block was created.
+    pub chain_from: i64,                         // The start range of the chain.
+    pub chain_to: i64,                           // The end range of the chain.
+    pub height: i64,                             // The block height.
+    pub deps: Vec<BlockHash>,                    // The block dependencies.
+    pub transactions: Vec<Transaction>,          // The list of transactions in this block.
+    pub nonce: String,                           // A unique nonce for the block.
+    pub version: i8,                             // The version of the block.
+    pub dep_state_hash: Hash,                    // The state hash of the block dependencies.
+    pub txs_hash: Hash,                          // The hash of the transactions in the block.
+    pub target: String,                          // The target block for the chain.
     pub ghost_uncles: Vec<GhostUncleBlockEntry>, // A list of ghost uncles related to the block.
 }
 
@@ -92,7 +92,7 @@ pub struct BlocksAndEventsPerTimestampRange {
 pub enum Val {
     Address { value: String, typ: String }, // Represents an address value.
     Array { value: Vec<Val>, typ: String }, // Represents an array of values.
-    Bool { value: bool, typ: String },     // Represents a boolean value.
+    Bool { value: bool, typ: String },      // Represents a boolean value.
     ByteVec { value: String, typ: String }, // Represents a byte vector value.
     I256 { value: String, typ: String },    // Represents an I256 value.
     U256 { value: String, typ: String },    // Represents a U256 value.
@@ -103,23 +103,23 @@ pub enum Val {
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct ContractEventByBlockHash {
-    pub tx_id: String,       // The transaction ID associated with the event.
+    pub tx_id: String,            // The transaction ID associated with the event.
     pub contract_address: String, // The contract address where the event was emitted.
-    pub event_index: i32,    // The index of the event.
-    pub fields: Vec<Val>,    // The fields of the event.
+    pub event_index: i32,         // The index of the event.
+    pub fields: Vec<Val>,         // The fields of the event.
 }
 
 /// Represents an unsigned transaction.
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct UnsignedTx {
-    pub tx_id: String,         // The transaction ID.
-    pub version: i32,          // The version of the transaction.
-    pub network_id: i32,       // The network ID the transaction belongs to.
-    pub script_opt: Option<String>, // Optional script for the transaction.
-    pub gas_amount: i32,       // The gas amount used for the transaction.
-    pub gas_price: String,     // The price of gas for the transaction.
-    pub inputs: Vec<AssetInput>, // The inputs of the transaction.
+    pub tx_id: String,                        // The transaction ID.
+    pub version: i32,                         // The version of the transaction.
+    pub network_id: i32,                      // The network ID the transaction belongs to.
+    pub script_opt: Option<String>,           // Optional script for the transaction.
+    pub gas_amount: i32,                      // The gas amount used for the transaction.
+    pub gas_price: String,                    // The price of gas for the transaction.
+    pub inputs: Vec<AssetInput>,              // The inputs of the transaction.
     pub fixed_outputs: Vec<FixedAssetOutput>, // The fixed outputs of the transaction.
 }
 
@@ -127,20 +127,20 @@ pub struct UnsignedTx {
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct Transaction {
-    pub unsigned: UnsignedTx,               // The unsigned transaction.
-    pub script_execution_ok: bool,          // Whether the script execution was successful.
-    pub contract_inputs: Vec<OutputRef>,    // The contract inputs associated with the transaction.
-    pub generated_outputs: Vec<Output>,     // The outputs generated from the transaction.
-    pub input_signatures: Vec<String>,      // The signatures of the inputs.
-    pub script_signatures: Vec<String>,     // The script signatures for the transaction.
+    pub unsigned: UnsignedTx,            // The unsigned transaction.
+    pub script_execution_ok: bool,       // Whether the script execution was successful.
+    pub contract_inputs: Vec<OutputRef>, // The contract inputs associated with the transaction.
+    pub generated_outputs: Vec<Output>,  // The outputs generated from the transaction.
+    pub input_signatures: Vec<String>,   // The signatures of the inputs.
+    pub script_signatures: Vec<String>,  // The script signatures for the transaction.
 }
 
 /// Represents a reference to an output in a transaction.
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct OutputRef {
-    pub hint: i32,        // The hint associated with the output reference.
-    pub key: String,      // The key for the output reference.
+    pub hint: i32,   // The hint associated with the output reference.
+    pub key: String, // The key for the output reference.
 }
 
 /// Represents an output in a transaction.
@@ -152,55 +152,55 @@ pub struct Output {}
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct ContractOutput {
-    pub hint: i32,            // The hint for the contract output.
-    pub key: String,          // The key for the contract output.
+    pub hint: i32,                // The hint for the contract output.
+    pub key: String,              // The key for the contract output.
     pub atto_alph_amount: String, // The amount of atto alph associated with the output.
-    pub address: String,      // The address associated with the output.
-    pub tokens: Vec<Token>,   // The list of tokens associated with the output.
-    pub typ: String,          // The type of the contract output.
+    pub address: String,          // The address associated with the output.
+    pub tokens: Vec<Token>,       // The list of tokens associated with the output.
+    pub typ: String,              // The type of the contract output.
 }
 
 /// Represents an asset input in a transaction.
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct AssetInput {
-    pub output_ref: OutputRef,    // The output reference for the asset input.
-    pub unlock_script: String,    // The unlock script for the asset input.
+    pub output_ref: OutputRef, // The output reference for the asset input.
+    pub unlock_script: String, // The unlock script for the asset input.
 }
 
 /// Represents an asset output in a transaction.
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct AssetOutput {
-    pub hint: i32,            // The hint for the asset output.
-    pub key: String,          // The key for the asset output.
+    pub hint: i32,                // The hint for the asset output.
+    pub key: String,              // The key for the asset output.
     pub atto_alph_amount: String, // The amount of atto alph associated with the output.
-    pub address: String,      // The address associated with the output.
-    pub tokens: Vec<Token>,   // The tokens associated with the output.
-    pub lock_time: i64,       // The lock time for the asset output.
-    pub message: String,      // The message for the asset output.
-    pub typ: String,          // The type of the asset output.
+    pub address: String,          // The address associated with the output.
+    pub tokens: Vec<Token>,       // The tokens associated with the output.
+    pub lock_time: i64,           // The lock time for the asset output.
+    pub message: String,          // The message for the asset output.
+    pub typ: String,              // The type of the asset output.
 }
 
 /// Represents a fixed asset output in a transaction.
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct FixedAssetOutput {
-    pub hint: i32,            // The hint for the fixed asset output.
-    pub key: String,          // The key for the fixed asset output.
+    pub hint: i32,                // The hint for the fixed asset output.
+    pub key: String,              // The key for the fixed asset output.
     pub atto_alph_amount: String, // The amount of atto alph associated with the output.
-    pub address: String,      // The address associated with the fixed asset output.
-    pub tokens: Vec<Token>,   // The tokens associated with the output.
-    pub lock_time: i64,       // The lock time for the fixed asset output.
-    pub message: String,      // The message for the fixed asset output.
+    pub address: String,          // The address associated with the fixed asset output.
+    pub tokens: Vec<Token>,       // The tokens associated with the output.
+    pub lock_time: i64,           // The lock time for the fixed asset output.
+    pub message: String,          // The message for the fixed asset output.
 }
 
 /// Represents a token in a transaction.
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct Token {
-    pub id: String,      // The token ID.
-    pub amount: String,  // The amount of the token.
+    pub id: String,     // The token ID.
+    pub amount: String, // The amount of the token.
 }
 
 /// Tests for the module to ensure correct deserialization and display functionality.
@@ -222,11 +222,12 @@ mod tests {
         let block_hash = BlockHash(
             "00000000000006f8c2bcaac93c5a23df8fba7119ba139d80a49d0303bbf84850".to_string(),
         );
-  assert_eq!(
+        assert_eq!(
             format!("{}", block_hash),
             "00000000000006f8c2bcaac93c5a23df8fba7119ba139d80a49d0303bbf84850"
         );
-    }    #[test]
+    }
+    #[test]
     fn test_block_entry_deser() {
         let json_data = json!({
             "hash": "00000000000006f8c2bcaac93c5a23df8fba7119ba139d80a49d0303bbf84850",
@@ -332,4 +333,4 @@ mod tests {
         let block_and_event = &blocks_and_events.blocks_and_events[0][0];
         assert_eq!(block_and_event.block.hash.0, "blockhash123");
     }
-}  
+}

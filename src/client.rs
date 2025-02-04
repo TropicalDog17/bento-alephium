@@ -9,9 +9,9 @@ use url::Url;
 /// Enum representing different networks for the client to interact with.
 #[derive(Clone, Debug)]
 pub enum Network {
-    Development,  // Represents the development network.
-    Testnet,     // Represents the testnet network.
-    Mainnet,     // Represents the mainnet network.
+    Development,    // Represents the development network.
+    Testnet,        // Represents the testnet network.
+    Mainnet,        // Represents the mainnet network.
     Custom(String), // Represents a custom network, specified by a URL.
 }
 

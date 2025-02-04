@@ -31,7 +31,7 @@ pub struct Block {
 }
 /// Represents an event related to a blockchain transaction.
 ///
-/// An event is tied to a specific transaction and contract address, with additional metadata in `fields` 
+/// An event is tied to a specific transaction and contract address, with additional metadata in `fields`
 /// that can vary depending on the event's nature. The `Event` struct interacts with the `events` table.
 #[derive(Queryable, Selectable, Insertable, Debug, Clone, AsChangeset)]
 #[diesel(table_name = crate::schema::events)]
