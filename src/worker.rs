@@ -7,8 +7,9 @@ use crate::{
     config::ProcessorConfig,
     db::{new_db_pool, DbPool},
     processors::{
-        block_event_processor::BlockEventProcessor, default_processor::DefaultProcessor,
-        transaction_processor::TransactionProcessor, Processor, ProcessorTrait,
+        block_processor::BlockProcessor, default_processor::DefaultProcessor,
+        event_processor::EventProcessor, transaction_processor::TransactionProcessor, Processor,
+        ProcessorTrait,
     },
 };
 
@@ -164,8 +165,7 @@ pub fn build_processor(config: &ProcessorConfig, db_pool: Arc<DbPool>) -> Proces
         ProcessorConfig::TransactionProcessor => {
             Processor::TransactionProcessor(TransactionProcessor::new(db_pool))
         }
-        ProcessorConfig::BlockEventProcessor => {
-            Processor::BlockProcessor(BlockEventProcessor::new(db_pool))
-        }
+        ProcessorConfig::BlockProcessor => Processor::BlockProcessor(BlockProcessor::new(db_pool)),
+        ProcessorConfig::EventProcessor => Processor::EventProcessor(EventProcessor::new(db_pool)),
     }
 }

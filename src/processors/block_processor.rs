@@ -12,31 +12,31 @@ use crate::{
 
 use super::ProcessorTrait;
 
-pub struct BlockEventProcessor {
+pub struct BlockProcessor {
     connection_pool: Arc<DbPool>,
 }
 
-impl BlockEventProcessor {
+impl BlockProcessor {
     pub fn new(connection_pool: Arc<DbPool>) -> Self {
         Self { connection_pool }
     }
 }
 
-impl Debug for BlockEventProcessor {
+impl Debug for BlockProcessor {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let state = &self.connection_pool.state();
         write!(
             f,
-            "BlockEventProcessor {{ connections: {:?}  idle_connections: {:?} }}",
+            "BlockProcessor {{ connections: {:?}  idle_connections: {:?} }}",
             state.connections, state.idle_connections
         )
     }
 }
 
 #[async_trait]
-impl ProcessorTrait for BlockEventProcessor {
+impl ProcessorTrait for BlockProcessor {
     fn name(&self) -> &'static str {
-        ProcessorConfig::BlockEventProcessor.name()
+        ProcessorConfig::BlockProcessor.name()
     }
 
     fn connection_pool(&self) -> &Arc<DbPool> {

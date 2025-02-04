@@ -1,7 +1,8 @@
 pub enum ProcessorConfig {
     DefaultProcessor,
     TransactionProcessor,
-    BlockEventProcessor,
+    BlockProcessor,
+    EventProcessor,
 }
 
 impl ProcessorConfig {
@@ -9,7 +10,8 @@ impl ProcessorConfig {
         match self {
             ProcessorConfig::DefaultProcessor => "default_processor",
             ProcessorConfig::TransactionProcessor => "transaction_processor",
-            ProcessorConfig::BlockEventProcessor => "block_event_processor",
+            ProcessorConfig::BlockProcessor => "block_processor",
+            ProcessorConfig::EventProcessor => "event_processor",
         }
     }
 }
