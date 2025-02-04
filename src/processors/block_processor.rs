@@ -51,7 +51,9 @@ impl ProcessorTrait for BlockProcessor {
     ) -> Result<()> {
         // Process blocks and insert to db
         let models = convert_to_model(blocks);
-        insert_to_db(self.connection_pool.clone(), models).await?;
+        if !models.is_empty() {
+            insert_to_db(self.connection_pool.clone(), models).await?;
+        }
         Ok(())
     }
 }
