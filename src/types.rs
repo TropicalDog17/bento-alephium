@@ -1,5 +1,4 @@
 use serde::{Deserialize, Serialize};
-
 pub type Event = ContractEventByBlockHash;
 
 #[derive(Deserialize, Debug)]
@@ -53,6 +52,23 @@ pub struct BlocksPerTimestampRange {
     pub blocks: Vec<Vec<BlockEntry>>,
 }
 
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub enum EventFieldType {
+    Bool,
+    I256,
+    U256,
+    ByteVec,
+    Address,
+}
+
+// Parsing event fields helper
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct EventField {
+    #[serde(rename = "type")]
+    pub field_type: EventFieldType,
+    pub value: String,
+}
+
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct BlockAndEvents {
@@ -72,7 +88,7 @@ pub struct ContractEventByBlockHash {
     pub tx_id: String,
     pub contract_address: String,
     pub event_index: i32,
-    pub fields: Vec<serde_json::Value>,
+    pub fields: Vec<EventField>,
 }
 
 #[derive(Deserialize, Debug, Clone, Serialize)]

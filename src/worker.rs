@@ -8,8 +8,8 @@ use crate::{
     db::{new_db_pool, DbPool},
     processors::{
         block_processor::BlockProcessor, default_processor::DefaultProcessor,
-        event_processor::EventProcessor, transaction_processor::TransactionProcessor, Processor,
-        ProcessorTrait,
+        event_processor::EventProcessor, lending_marketplace_processor::LendingContractProcessor,
+        transaction_processor::TransactionProcessor, Processor, ProcessorTrait,
     },
 };
 
@@ -122,7 +122,7 @@ impl Worker {
                         sleep(sync_duration).await;
                         continue;
                     }
-                    current_ts = to_ts+1;
+                    current_ts = to_ts + 1;
                 }
                 Err(err) => {
                     tracing::error!(
@@ -167,5 +167,11 @@ pub fn build_processor(config: &ProcessorConfig, db_pool: Arc<DbPool>) -> Proces
         }
         ProcessorConfig::BlockProcessor => Processor::BlockProcessor(BlockProcessor::new(db_pool)),
         ProcessorConfig::EventProcessor => Processor::EventProcessor(EventProcessor::new(db_pool)),
+        ProcessorConfig::LendingContractProcessor(contract_address) => {
+            Processor::LendingContractProcessor(LendingContractProcessor::new(
+                db_pool,
+                contract_address.clone(),
+            ))
+        }
     }
 }

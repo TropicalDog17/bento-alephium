@@ -9,34 +9,39 @@ allocative_derive = "0.3.3"
 anyhow = "1.0.95"
 async-trait = "0.1.85"
 base64 = "0.22.1"
-bigdecimal = {version = "0.4.1", features = ["serde"]}
-chrono = {version = "0.4.31", features = ["serde"]}
-diesel = {version = "2.2.6", features = [
+bigdecimal = { version = "0.4.1", features = ["serde"] }
+chrono = { version = "0.4.31", features = ["serde"] }
+diesel = { version = "2.2.6", features = [
   "chrono",
   "postgres_backend",
   "numeric",
   "serde_json",
-]}
-diesel-async = {version = "0.5.2", features = [
+] }
+diesel-async = { version = "0.5.2", features = [
   "async-connection-wrapper",
   "postgres",
   "bb8",
   "tokio",
-]}
-diesel_async_migrations = {version = "0.15.0"}
-diesel_migrations = {version = "2.1.0", features = ["postgres"]}
+] }
+diesel-enum = "0.2.1"
+diesel_async_migrations = { version = "0.15.0" }
+diesel_migrations = { version = "2.1.0", features = ["postgres"] }
 dotenv = "0.15"
 dotenvy = "0.15"
 env_logger = "0.11.6"
 futures = "0.3.31"
-futures-util = {version = "0.3.31", default-features = false, features = ["sink", "std"]}
+futures-util = { version = "0.3.31", default-features = false, features = [
+  "sink",
+  "std",
+] }
 log = "0.4.25"
 native-tls = "=0.2.12"
 postgres-native-tls = "=0.5.0"
-reqwest = {version = "0.12.12", features = ["json"]}
-serde = {version = "1.0.217", features = ["derive"]}
-serde_json = {version = "1.0.137", features = ["raw_value"]}
-tokio = {version = "1.43.0", features = ["full"]}
+reqwest = { version = "0.12.12", features = ["json"] }
+serde = { version = "1.0.217", features = ["derive"] }
+serde_json = { version = "1.0.137", features = ["raw_value"] }
+thiserror = "2.0.11"
+tokio = { version = "1.43.0", features = ["full"] }
 tokio-postgres = "=0.7.12"
 tokio-tungstenite = "0.26.1"
 tracing = "0.1.41"

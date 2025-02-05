@@ -17,12 +17,14 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
     let mut worker = Worker::new(
-        ProcessorConfig::EventProcessor,
+        ProcessorConfig::LendingContractProcessor(
+            "yuF1Sum4ricLFBc86h3RdjFsebR7ZXKBHm2S5sZmVsiF".into(),
+        ),
         database_url,
         Network::Testnet,
         None,
         Some(SyncOptions {
-            start_ts: Some(1716560521657),
+            start_ts: Some(1716637726600),
             step: Some(1000),
             back_step: None,
             sync_duration: None,

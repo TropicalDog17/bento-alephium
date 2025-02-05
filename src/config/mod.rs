@@ -3,6 +3,7 @@ pub enum ProcessorConfig {
     TransactionProcessor,
     BlockProcessor,
     EventProcessor,
+    LendingContractProcessor(String),
 }
 
 impl ProcessorConfig {
@@ -12,6 +13,7 @@ impl ProcessorConfig {
             ProcessorConfig::TransactionProcessor => "transaction_processor",
             ProcessorConfig::BlockProcessor => "block_processor",
             ProcessorConfig::EventProcessor => "event_processor",
+            ProcessorConfig::LendingContractProcessor(_) => "lending_contract_processor",
         }
     }
 }

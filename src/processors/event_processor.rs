@@ -79,7 +79,7 @@ pub fn convert_to_model(blocks: Vec<Vec<BlockAndEvents>>) -> Vec<EventModel> {
                     tx_id: e.tx_id,
                     contract_address: e.contract_address,
                     event_index: e.event_index,
-                    fields: serde_json::Value::Array(e.fields),
+                    fields: serde_json::to_value(e.fields).unwrap_or_default(), // TODO: need error handling here for retry?
                 });
             }
         }

@@ -29,6 +29,17 @@ diesel::table! {
 }
 
 diesel::table! {
+    loan_actions (id) {
+        id -> Int4,
+        loan_subcontract_id -> Varchar,
+        loan_id -> Nullable<Numeric>,
+        by -> Varchar,
+        timestamp -> Timestamp,
+        action_type -> Int2,
+    }
+}
+
+diesel::table! {
     transactions (tx_hash) {
         tx_hash -> Text,
         unsigned -> Jsonb,
@@ -42,8 +53,4 @@ diesel::table! {
     }
 }
 
-diesel::allow_tables_to_appear_in_same_query!(
-    blocks,
-    events,
-    transactions,
-);
+diesel::allow_tables_to_appear_in_same_query!(blocks, events, loan_actions, transactions,);
