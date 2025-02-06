@@ -1,7 +1,8 @@
 -- Your SQL goes here
 
 CREATE TABLE loan_details (
-    loan_subcontract_id VARCHAR PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
+    loan_subcontract_id VARCHAR NOT NULL,
     lending_token_id VARCHAR NOT NULL,
     collateral_token_id VARCHAR NOT NULL,
     lending_amount NUMERIC NOT NULL,

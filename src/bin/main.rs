@@ -24,7 +24,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         Network::Testnet,
         None,
         Some(SyncOptions {
-            start_ts: Some(1716637726600),
+            start_ts: Some(1716560632750),
             step: Some(1000),
             back_step: None,
             sync_duration: None,

@@ -121,8 +121,11 @@ pub fn convert_to_model(
             let events = be.events;
             for event in events {
                 if event.contract_address.eq(&contract_address) {
-                    handle_loan_action_event(&event, &mut loan_actions);
-                    handle_loan_detail_event(&event, &mut loan_details);
+                    if let Some(action) = LoanActionType::from_event_index(event.event_index) {
+                        handle_loan_action_event(&mut loan_actions, &event, action);
+                    } else if event.event_index == 1 {
+                        handle_loan_detail_event(&event, &mut loan_details);
+                    }
                 }
             }
         }
@@ -178,13 +181,12 @@ impl LoanActionType {
     }
 }
 
-fn handle_loan_action_event(event: &ContractEventByBlockHash, models: &mut Vec<LoanActionModel>) {
+fn handle_loan_action_event(models: &mut Vec<LoanActionModel>, event: &ContractEventByBlockHash, action: LoanActionType) {
     // Sanity check
     if event.fields.len() < 3 {
         tracing::warn!("Invalid event fields length: {}, skipping", event.fields.len());
     }
 
-    if let Some(action) = LoanActionType::from_event_index(event.event_index) {
         match action {
             LoanActionType::LoanCreated => {
                 models.push(LoanActionModel {
@@ -215,7 +217,6 @@ fn handle_loan_action_event(event: &ContractEventByBlockHash, models: &mut Vec<L
                 });
             }
         }
-    }
 }
 
 fn handle_loan_detail_event(event: &ContractEventByBlockHash, models: &mut Vec<LoanDetailModel>){

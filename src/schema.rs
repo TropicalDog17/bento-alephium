@@ -40,7 +40,8 @@ diesel::table! {
 }
 
 diesel::table! {
-    loan_details (loan_subcontract_id) {
+    loan_details (id) {
+        id -> Int4,
         loan_subcontract_id -> Varchar,
         lending_token_id -> Varchar,
         collateral_token_id -> Varchar,
