@@ -40,6 +40,19 @@ diesel::table! {
 }
 
 diesel::table! {
+    loan_details (loan_subcontract_id) {
+        loan_subcontract_id -> Varchar,
+        lending_token_id -> Varchar,
+        collateral_token_id -> Varchar,
+        lending_amount -> Numeric,
+        collateral_amount -> Numeric,
+        interest_rate -> Numeric,
+        duration -> Numeric,
+        lender -> Varchar,
+    }
+}
+
+diesel::table! {
     transactions (tx_hash) {
         tx_hash -> Text,
         unsigned -> Jsonb,
@@ -53,4 +66,10 @@ diesel::table! {
     }
 }
 
-diesel::allow_tables_to_appear_in_same_query!(blocks, events, loan_actions, transactions,);
+diesel::allow_tables_to_appear_in_same_query!(
+    blocks,
+    events,
+    loan_actions,
+    loan_details,
+    transactions,
+);
