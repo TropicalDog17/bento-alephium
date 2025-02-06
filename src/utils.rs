@@ -1,5 +1,5 @@
 use chrono::{DateTime, NaiveDateTime, Utc};
-use serde::{Deserialize, Serialize};
+
 // Convert timestamp in milliseconds to NaiveDateTime
 pub fn timestamp_millis_to_naive_datetime(timestamp_millis: i64) -> NaiveDateTime {
     let seconds = timestamp_millis / 1000;

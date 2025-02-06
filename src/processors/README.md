@@ -252,4 +252,3 @@ processor.process_blocks(
 ```
 
 Remember to handle errors appropriately and implement proper logging throughout your processor implementation.
-
