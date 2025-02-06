@@ -52,7 +52,7 @@ pub struct BlocksPerTimestampRange {
     pub blocks: Vec<Vec<BlockEntry>>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub enum EventFieldType {
     Bool,
     I256,
@@ -305,5 +305,50 @@ mod tests {
         assert_eq!(blocks_and_events.blocks_and_events.len(), 1);
         let block_and_event = &blocks_and_events.blocks_and_events[0][0];
         assert_eq!(block_and_event.block.hash, "blockhash123");
+    }
+
+    #[test]
+    fn test_event_deser() {
+        let json_data = json!(
+            {
+                "contractAddress": "tgx7VNFoP9DJiFMFgXXtafQZkUvyEdDHT9ryamHJZC9M",
+                "txId": "585cda67fae0756b9a43ff30e3738e0ee4b7ed4286c66e2a51b9822f3dfa8899",
+                "eventIndex": -1,
+                "fields": [
+                    {
+                        "type": "Address",
+                        "value": "25krLqkUUDUYUmqdzZPmXVTHTSQos6UZQ4H6xhRSjB1Yj"
+                    },
+                    {
+                        "type": "Address",
+                        "value": "yuF1Sum4ricLFBc86h3RdjFsebR7ZXKBHm2S5sZmVsiF"
+                    },
+                    {
+                        "type": "ByteVec",
+                        "value": ""
+                    }
+                ]
+            }
+        );
+        let event: Event = serde_json::from_value(json_data).unwrap();
+        assert_eq!(
+            event.contract_address,
+            "tgx7VNFoP9DJiFMFgXXtafQZkUvyEdDHT9ryamHJZC9M".to_string()
+        );
+        assert_eq!(
+            event.tx_id,
+            "585cda67fae0756b9a43ff30e3738e0ee4b7ed4286c66e2a51b9822f3dfa8899".to_string()
+        );
+        assert_eq!(event.event_index, -1);
+        assert_eq!(event.fields.len(), 3);
+
+        let field = &event.fields[0];
+        assert_eq!(field.field_type, EventFieldType::Address);
+
+        let field = &event.fields[1];
+        assert_eq!(field.field_type, EventFieldType::Address);
+
+        let field = &event.fields[2];
+        assert_eq!(field.field_type, EventFieldType::ByteVec);
     }
 }

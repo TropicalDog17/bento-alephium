@@ -31,7 +31,6 @@ pub struct LoanActionModel {
     action_type: LoanActionType,
 }
 
-
 #[derive(Queryable, Selectable, Insertable, Debug, Clone, Serialize, AsChangeset)]
 #[diesel(table_name = crate::schema::loan_details)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
@@ -97,14 +96,20 @@ impl ProcessorTrait for LendingContractProcessor {
 }
 
 /// Insert loan actions into the database.
-pub async fn insert_loan_actions_to_db(db: Arc<DbPool>, actions: Vec<LoanActionModel>) -> Result<()> {
+pub async fn insert_loan_actions_to_db(
+    db: Arc<DbPool>,
+    actions: Vec<LoanActionModel>,
+) -> Result<()> {
     let mut conn = db.get().await?;
     insert_into(crate::schema::loan_actions::table).values(&actions).execute(&mut conn).await?;
     Ok(())
 }
 
 /// Insert loan details into the database.
-pub async fn insert_loan_details_to_db(db: Arc<DbPool>, details: Vec<LoanDetailModel>) -> Result<()> {
+pub async fn insert_loan_details_to_db(
+    db: Arc<DbPool>,
+    details: Vec<LoanDetailModel>,
+) -> Result<()> {
     let mut conn = db.get().await?;
     insert_into(crate::schema::loan_details::table).values(&details).execute(&mut conn).await?;
     Ok(())
@@ -181,45 +186,46 @@ impl LoanActionType {
     }
 }
 
-fn handle_loan_action_event(models: &mut Vec<LoanActionModel>, event: &ContractEventByBlockHash, action: LoanActionType) {
+fn handle_loan_action_event(
+    models: &mut Vec<LoanActionModel>,
+    event: &ContractEventByBlockHash,
+    action: LoanActionType,
+) {
     // Sanity check
     if event.fields.len() < 3 {
         tracing::warn!("Invalid event fields length: {}, skipping", event.fields.len());
     }
 
-        match action {
-            LoanActionType::LoanCreated => {
-                models.push(LoanActionModel {
-                    loan_subcontract_id: event.fields[0].value.clone(),
+    match action {
+        LoanActionType::LoanCreated => {
+            models.push(LoanActionModel {
+                loan_subcontract_id: event.fields[0].value.clone(),
 
-                    action_type: action,
-                    by: event.fields[2].value.clone(),
-                    timestamp: timestamp_millis_to_naive_datetime(
-                        event.fields[3].value.parse::<i64>().unwrap(),
-                    ),
-                    loan_id: Some(
-                        BigDecimal::from_f64(
-                            event.fields[1].value.parse::<f64>().unwrap(),
-                        )
-                        .unwrap(),
-                    ),
-                });
-            }
-            _ => {
-                models.push(LoanActionModel {
-                    loan_subcontract_id: event.fields[0].value.clone(),
-                    action_type: action,
-                    by: event.fields[1].value.clone(),
-                    timestamp: timestamp_millis_to_naive_datetime(
-                        event.fields[2].value.parse::<i64>().unwrap(),
-                    ),
-                    loan_id: None, // Other actions does not need this field
-                });
-            }
+                action_type: action,
+                by: event.fields[2].value.clone(),
+                timestamp: timestamp_millis_to_naive_datetime(
+                    event.fields[3].value.parse::<i64>().unwrap(),
+                ),
+                loan_id: Some(
+                    BigDecimal::from_f64(event.fields[1].value.parse::<f64>().unwrap()).unwrap(),
+                ),
+            });
         }
+        _ => {
+            models.push(LoanActionModel {
+                loan_subcontract_id: event.fields[0].value.clone(),
+                action_type: action,
+                by: event.fields[1].value.clone(),
+                timestamp: timestamp_millis_to_naive_datetime(
+                    event.fields[2].value.parse::<i64>().unwrap(),
+                ),
+                loan_id: None, // Other actions does not need this field
+            });
+        }
+    }
 }
 
-fn handle_loan_detail_event(event: &ContractEventByBlockHash, models: &mut Vec<LoanDetailModel>){
+fn handle_loan_detail_event(event: &ContractEventByBlockHash, models: &mut Vec<LoanDetailModel>) {
     // Sanity check
     if event.fields.len() != 8 {
         tracing::warn!("Invalid event fields length: {}, skipping", event.fields.len());
@@ -229,8 +235,10 @@ fn handle_loan_detail_event(event: &ContractEventByBlockHash, models: &mut Vec<L
         loan_subcontract_id: event.fields[0].value.clone(),
         lending_token_id: event.fields[1].value.clone(),
         collateral_token_id: event.fields[2].value.clone(),
-        lending_amount: BigDecimal::from_f64(event.fields[3].value.parse::<f64>().unwrap()).unwrap(),
-        collateral_amount: BigDecimal::from_f64(event.fields[4].value.parse::<f64>().unwrap()).unwrap(),
+        lending_amount: BigDecimal::from_f64(event.fields[3].value.parse::<f64>().unwrap())
+            .unwrap(),
+        collateral_amount: BigDecimal::from_f64(event.fields[4].value.parse::<f64>().unwrap())
+            .unwrap(),
         interest_rate: BigDecimal::from_f64(event.fields[5].value.parse::<f64>().unwrap()).unwrap(),
         duration: BigDecimal::from_f64(event.fields[6].value.parse::<f64>().unwrap()).unwrap(),
         lender: event.fields[7].value.clone(),
