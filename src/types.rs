@@ -1,5 +1,7 @@
 use serde::{Deserialize, Serialize};
 pub type Event = ContractEventByBlockHash;
+pub type BlockHash = String;
+pub type GroupIndex = i64;
 
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
@@ -27,6 +29,8 @@ pub struct BlockEntry {
     pub dep_state_hash: String,
     pub txs_hash: String,
     pub target: String,
+    pub parent: BlockHash,
+    pub main_chain: bool,
     pub ghost_uncles: Vec<GhostUncleBlockEntry>,
 }
 
@@ -69,7 +73,7 @@ pub struct EventField {
     pub value: String,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct BlockAndEvents {
     pub block: BlockEntry,

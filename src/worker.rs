@@ -1,7 +1,7 @@
 use anyhow::{Context, Result};
 use diesel::{insert_into, ExpressionMethods, OptionalExtension, QueryDsl};
 use diesel_async::RunQueryDsl;
-use std::{sync::Arc, time::Duration};
+use std::{convert, sync::Arc, time::Duration};
 use tokio::time::sleep;
 
 use crate::{
@@ -13,7 +13,7 @@ use crate::{
         event_processor::EventProcessor, lending_marketplace_processor::LendingContractProcessor,
         transaction_processor::TransactionProcessor, Processor, ProcessorTrait,
     },
-    schema::processor_status,
+    schema::{processor_status},
 };
 
 #[derive(Debug, Default)]
@@ -131,7 +131,7 @@ impl Worker {
                         sleep(sync_duration).await;
                         continue;
                     }
-                    update_last_timestamp(&self.db_pool, &processor_name, to_ts).await.unwrap();
+                    update_last_timestamp(&self.db_pool, processor_name, to_ts).await.unwrap();
                     current_ts = to_ts + 1;
                 }
                 Err(err) => {

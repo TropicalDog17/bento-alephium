@@ -15,6 +15,9 @@ diesel::table! {
         tx_number -> Int8,
         target -> Text,
         ghost_uncles -> Jsonb,
+        #[max_length = 50]
+        parent -> Varchar,
+        main_chain -> Bool,
     }
 }
 

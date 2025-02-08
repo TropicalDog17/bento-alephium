@@ -3,11 +3,13 @@ use std::sync::Arc;
 
 use anyhow::Result;
 use async_trait::async_trait;
-use diesel::insert_into;
-use diesel_async::RunQueryDsl;
 
 use crate::{
-    config::ProcessorConfig, db::DbPool, models::event::EventModel, types::BlockAndEvents,
+    config::ProcessorConfig,
+    db::DbPool,
+    models::{convert_bwe_to_event_models},
+    repository::insert_events_to_db,
+    types::BlockAndEvents,
 };
 
 use super::ProcessorTrait;
@@ -49,40 +51,16 @@ impl ProcessorTrait for EventProcessor {
         _to: i64,
         blocks: Vec<Vec<BlockAndEvents>>,
     ) -> Result<()> {
-        // Process blocks and insert to db
-        let models = convert_to_model(blocks);
+        // Process events and insert to db
+        let models = convert_bwe_to_event_models(blocks);
         if !models.is_empty() {
             tracing::info!(
                 processor_name = ?self.name(),
                 count = ?models.len(),
                 "Found models to insert"
             );
-            insert_to_db(self.connection_pool.clone(), models).await?;
+            insert_events_to_db(self.connection_pool.clone(), models).await?;
         }
         Ok(())
     }
-}
-
-/// Insert events into the database.
-pub async fn insert_to_db(db: Arc<DbPool>, events: Vec<EventModel>) -> Result<()> {
-    let mut conn = db.get().await?;
-    insert_into(crate::schema::events::table).values(&events).execute(&mut conn).await?;
-    Ok(())
-}
-
-pub fn convert_to_model(blocks: Vec<Vec<BlockAndEvents>>) -> Vec<EventModel> {
-    let mut models = Vec::new();
-    for bes in blocks {
-        for be in bes {
-            for e in be.events {
-                models.push(EventModel {
-                    tx_id: e.tx_id,
-                    contract_address: e.contract_address,
-                    event_index: e.event_index,
-                    fields: serde_json::to_value(e.fields).unwrap_or_default(), // TODO: need error handling here for retry?
-                });
-            }
-        }
-    }
-    models
 }

@@ -18,5 +18,7 @@ pub struct BlockModel {
     pub txs_hash: String,
     pub tx_number: i64,
     pub target: String,
+    pub parent: String,
+    pub main_chain: bool,
     pub ghost_uncles: serde_json::Value,
 }
