@@ -54,6 +54,14 @@ diesel::table! {
 }
 
 diesel::table! {
+    processor_status (processor) {
+        #[max_length = 50]
+        processor -> Varchar,
+        last_timestamp -> Int8,
+    }
+}
+
+diesel::table! {
     transactions (tx_hash) {
         tx_hash -> Text,
         unsigned -> Jsonb,
@@ -72,5 +80,6 @@ diesel::allow_tables_to_appear_in_same_query!(
     events,
     loan_actions,
     loan_details,
+    processor_status,
     transactions,
 );

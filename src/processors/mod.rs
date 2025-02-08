@@ -1,6 +1,6 @@
 use crate::{
     db::{DbPool, DbPoolConnection},
-    types::{BlockAndEvents, LatestBlock},
+    types::BlockAndEvents,
 };
 use anyhow::Result;
 use async_trait::async_trait;
@@ -26,8 +26,7 @@ pub trait ProcessorTrait: Send + Sync + Debug {
     fn connection_pool(&self) -> &Arc<DbPool>;
 
     fn get_pool(&self) -> Arc<Pool<AsyncPgConnection>> {
-        let pool = self.connection_pool();
-        pool.clone()
+        self.connection_pool().clone()
     }
 
     async fn get_conn(&self) -> DbPoolConnection {
@@ -53,10 +52,6 @@ pub trait ProcessorTrait: Send + Sync + Debug {
         to_ts: i64,
         blocks: Vec<Vec<BlockAndEvents>>,
     ) -> Result<()>;
-
-    async fn update_last_processed_block(_block: LatestBlock, _timestamp: i64) -> Result<()> {
-        Ok(())
-    }
 }
 
 #[derive(Debug)]
