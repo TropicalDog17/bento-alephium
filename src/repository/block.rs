@@ -7,9 +7,10 @@ use anyhow::Result;
 use diesel::ExpressionMethods;
 
 use diesel::query_dsl::methods::SelectDsl;
-use diesel_async::{AsyncConnection, RunQueryDsl};
+use diesel_async::RunQueryDsl;
 
 /// Insert blocks into the database.
+#[allow(clippy::get_first)]
 pub async fn insert_blocks_to_db(db: Arc<DbPool>, block_models: Vec<BlockModel>) -> Result<()> {
     let mut conn = db.get().await?;
     insert_into(crate::schema::blocks::table).values(&block_models).execute(&mut conn).await?;

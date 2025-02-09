@@ -2,10 +2,7 @@ use std::sync::Arc;
 
 use diesel::insert_into;
 
-use crate::{
-    db::DbPool,
-    models::{block::BlockModel, event::EventModel},
-};
+use crate::{db::DbPool, models::event::EventModel};
 use anyhow::Result;
 use diesel_async::RunQueryDsl;
 

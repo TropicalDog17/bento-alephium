@@ -11,15 +11,13 @@ pub use transaction::*;
 use crate::{
     db::DbPool,
     models::{block::BlockModel, event::EventModel},
-    types::{BlockHash, DEFAULT_GROUP_NUM},
+    types::BlockHash,
 };
 use anyhow::{Ok, Result};
 use diesel::insert_into;
 use diesel::query_dsl::methods::FilterDsl;
 use diesel::ExpressionMethods;
-use diesel_async::{
-    scoped_futures::ScopedFutureExt, AsyncConnection, AsyncPgConnection, RunQueryDsl,
-};
+use diesel_async::{scoped_futures::ScopedFutureExt, AsyncConnection, RunQueryDsl};
 
 /// Insert block and events into the database.
 pub async fn insert_block_and_events(

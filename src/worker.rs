@@ -1,8 +1,7 @@
 use anyhow::{Context, Result};
-use chrono::NaiveDateTime;
 use diesel::{insert_into, ExpressionMethods, OptionalExtension, QueryDsl};
 use diesel_async::RunQueryDsl;
-use std::{convert, sync::Arc, time::Duration};
+use std::{sync::Arc, time::Duration};
 use tokio::time::sleep;
 
 use crate::{
@@ -17,7 +16,7 @@ use crate::{
     },
     repository::{get_block_by_hash, insert_blocks_to_db, update_main_chain},
     schema::processor_status,
-    types::{BlockEntry, Event, REORG_TIMEOUT},
+    types::REORG_TIMEOUT,
 };
 #[derive(Debug, Default)]
 pub struct SyncOptions {
@@ -298,5 +297,5 @@ async fn update_last_timestamp(
         .execute(&mut conn)
         .await
         .map(|_| ())
-        .map_err(|e| anyhow::Error::new(e))
+        .map_err(anyhow::Error::new)
 }

@@ -6,13 +6,13 @@ use async_trait::async_trait;
 use diesel::insert_into;
 use diesel_async::RunQueryDsl;
 
-use crate::models::{convert_bwe_to_block_models, convert_bwe_to_event_models};
+use crate::models::convert_bwe_to_block_models;
 use crate::{
     config::ProcessorConfig, db::DbPool, models::block::BlockModel, types::BlockAndEvents,
 };
 
 use super::ProcessorTrait;
-use crate::repository::{insert_block_and_events, insert_blocks_to_db};
+use crate::repository::insert_blocks_to_db;
 
 pub struct BlockProcessor {
     connection_pool: Arc<DbPool>,
