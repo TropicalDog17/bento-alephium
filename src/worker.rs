@@ -1,4 +1,5 @@
 use anyhow::{Context, Result};
+use chrono::NaiveDateTime;
 use diesel::{insert_into, ExpressionMethods, OptionalExtension, QueryDsl};
 use diesel_async::RunQueryDsl;
 use std::{convert, sync::Arc, time::Duration};
@@ -8,14 +9,16 @@ use crate::{
     client::{Client, Network},
     config::ProcessorConfig,
     db::{new_db_pool, DbPool},
+    models::{block::BlockModel, convert_bwe_to_block_models},
     processors::{
         block_processor::BlockProcessor, default_processor::DefaultProcessor,
         event_processor::EventProcessor, lending_marketplace_processor::LendingContractProcessor,
         transaction_processor::TransactionProcessor, Processor, ProcessorTrait,
     },
-    schema::{processor_status},
+    repository::{get_block_by_hash, insert_blocks_to_db, update_main_chain},
+    schema::processor_status,
+    types::{BlockEntry, Event, REORG_TIMEOUT},
 };
-
 #[derive(Debug, Default)]
 pub struct SyncOptions {
     pub start_ts: Option<i64>,
@@ -119,6 +122,20 @@ impl Worker {
                         block_count = blocks.blocks_and_events.len(),
                         "Found blocks"
                     );
+
+                    // Handle reorg when inside reorg interval
+                    if chrono::Utc::now().timestamp_millis() - to_ts <= REORG_TIMEOUT {
+                        tracing::info!(
+                            processor_name = processor_name,
+                            "Inside reorg interval, handling reorg if needed",
+                        );
+                        let blocks = convert_bwe_to_block_models(blocks.blocks_and_events.clone());
+                        for block in blocks.iter() {
+                            self.insert(self.db_pool.clone(), block.clone()).await.unwrap();
+                        }
+                    }
+
+                    // Process blocks
                     if let Err(err) =
                         processor.process_blocks(current_ts, to_ts, blocks.blocks_and_events).await
                     {
@@ -163,6 +180,67 @@ impl Worker {
         tracing::info!("Running migrations: {:?}", self.db_url);
         let mut conn = PgConnection::establish(&self.db_url).expect("migrations failed!");
         run_pending_migrations(&mut conn);
+    }
+
+    // Inserts a block into the database and handles chain reorganization if necessary.
+    ///
+    /// # Arguments
+    /// * `db` - Thread-safe reference to the database connection pool
+    /// * `block` - The block model to be inserted
+    ///
+    /// # Returns
+    /// * `Result<()>` - Success or error result
+    ///
+    /// # Flow
+    /// 1. Checks if block has a parent
+    /// 2. For blocks with parent:
+    ///    - Verifies parent exists and handles chain reorganization if needed
+    ///    - Inserts the block and updates main chain status
+    /// 3. For genesis blocks (no parent):
+    ///    - Validates height is 0
+    ///    - Inserts directly
+    async fn insert(&self, db: Arc<DbPool>, block: BlockModel) -> Result<()> {
+        match block.parent(None) {
+            Some(parent) => {
+                let parent_info = get_block_by_hash(db.clone(), &parent).await?;
+                match parent_info {
+                    None => unimplemented!(),
+                    Some(parent_info) => {
+                        if !parent_info.main_chain {
+                            assert_eq!(parent_info.chain_from, block.chain_from);
+                            assert_eq!(parent_info.chain_to, block.chain_to);
+                            update_main_chain(
+                                db.clone(),
+                                parent_info.hash,
+                                block.chain_from,
+                                block.chain_to,
+                                None,
+                            )
+                            .await?;
+                        }
+
+                        // After handle parent, we can insert the block
+                        // TODO: handle uncles
+                        insert_blocks_to_db(db.clone(), vec![block.clone()]).await?;
+                        update_main_chain(
+                            db,
+                            block.clone().hash,
+                            block.clone().chain_from,
+                            block.clone().chain_to,
+                            None,
+                        )
+                        .await?;
+                        Ok(())
+                    }
+                }
+            }
+            None => {
+                if block.height != 0 {
+                    tracing::error!("Block with no parent and height > 0: {:?}", block);
+                }
+                Ok(())
+            }
+        }
     }
 }
 

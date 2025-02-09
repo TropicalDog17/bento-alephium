@@ -7,7 +7,6 @@ diesel::table! {
         chain_from -> Int8,
         chain_to -> Int8,
         height -> Int8,
-        deps -> Nullable<Array<Nullable<Text>>>,
         nonce -> Text,
         version -> Text,
         dep_state_hash -> Text,
@@ -15,9 +14,8 @@ diesel::table! {
         tx_number -> Int8,
         target -> Text,
         ghost_uncles -> Jsonb,
-        #[max_length = 50]
-        parent -> Varchar,
         main_chain -> Bool,
+        deps -> Array<Nullable<Text>>,
     }
 }
 
@@ -75,6 +73,8 @@ diesel::table! {
         script_signatures -> Array<Nullable<Text>>,
         created_at -> Nullable<Timestamptz>,
         updated_at -> Nullable<Timestamptz>,
+        main_chain -> Bool,
+        block_hash -> Text,
     }
 }
 

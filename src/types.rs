@@ -1,4 +1,8 @@
 use serde::{Deserialize, Serialize};
+
+pub const DEFAULT_GROUP_NUM: i64 = 4;
+pub const REORG_TIMEOUT: i64 = 210 * 16 * 1000; // 210 blocks * 16 seconds
+
 pub type Event = ContractEventByBlockHash;
 pub type BlockHash = String;
 pub type GroupIndex = i64;
