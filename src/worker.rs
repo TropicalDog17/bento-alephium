@@ -12,7 +12,7 @@ use crate::{
     processors::{
         block_processor::BlockProcessor, default_processor::DefaultProcessor,
         event_processor::EventProcessor, lending_marketplace_processor::LendingContractProcessor,
-        transaction_processor::TransactionProcessor, Processor, ProcessorTrait,
+        Processor, ProcessorTrait,
     },
     repository::{get_block_by_hash, insert_blocks_to_db, update_main_chain},
     schema::processor_status,
@@ -248,9 +248,6 @@ pub fn build_processor(config: &ProcessorConfig, db_pool: Arc<DbPool>) -> Proces
     match config {
         ProcessorConfig::DefaultProcessor => {
             Processor::DefaultProcessor(DefaultProcessor::new(db_pool))
-        }
-        ProcessorConfig::TransactionProcessor => {
-            Processor::TransactionProcessor(TransactionProcessor::new(db_pool))
         }
         ProcessorConfig::BlockProcessor => Processor::BlockProcessor(BlockProcessor::new(db_pool)),
         ProcessorConfig::EventProcessor => Processor::EventProcessor(EventProcessor::new(db_pool)),

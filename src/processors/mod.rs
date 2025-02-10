@@ -10,13 +10,11 @@ use diesel_async::{pooled_connection::bb8::Pool, AsyncPgConnection};
 use event_processor::EventProcessor;
 use lending_marketplace_processor::LendingContractProcessor;
 use std::{fmt::Debug, sync::Arc};
-use transaction_processor::TransactionProcessor;
 
 pub mod block_processor;
 pub mod default_processor;
 pub mod event_processor;
 pub mod lending_marketplace_processor;
-pub mod transaction_processor;
 
 /// Base trait for all processors
 #[async_trait]
@@ -58,7 +56,6 @@ pub trait ProcessorTrait: Send + Sync + Debug {
 pub enum Processor {
     BlockProcessor(BlockProcessor),
     DefaultProcessor(DefaultProcessor),
-    TransactionProcessor(TransactionProcessor),
     EventProcessor(EventProcessor),
     LendingContractProcessor(LendingContractProcessor),
 }
@@ -68,7 +65,6 @@ impl ProcessorTrait for Processor {
     fn connection_pool(&self) -> &Arc<DbPool> {
         match self {
             Processor::DefaultProcessor(p) => p.connection_pool(),
-            Processor::TransactionProcessor(p) => p.connection_pool(),
             Processor::BlockProcessor(p) => p.connection_pool(),
             Processor::EventProcessor(p) => p.connection_pool(),
             Processor::LendingContractProcessor(p) => p.connection_pool(),
@@ -78,7 +74,6 @@ impl ProcessorTrait for Processor {
     fn name(&self) -> &'static str {
         match self {
             Processor::DefaultProcessor(p) => p.name(),
-            Processor::TransactionProcessor(p) => p.name(),
             Processor::BlockProcessor(p) => p.name(),
             Processor::EventProcessor(p) => p.name(),
             Processor::LendingContractProcessor(p) => p.name(),
@@ -93,7 +88,6 @@ impl ProcessorTrait for Processor {
     ) -> Result<()> {
         match self {
             Processor::DefaultProcessor(p) => p.process_blocks(from_ts, to_ts, blocks).await,
-            Processor::TransactionProcessor(p) => p.process_blocks(from_ts, to_ts, blocks).await,
             Processor::BlockProcessor(p) => p.process_blocks(from_ts, to_ts, blocks).await,
             Processor::EventProcessor(p) => p.process_blocks(from_ts, to_ts, blocks).await,
             Processor::LendingContractProcessor(p) => {
