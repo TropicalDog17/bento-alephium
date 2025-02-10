@@ -73,7 +73,7 @@ mod tests {
     use super::*;
     use crate::db::new_db_pool;
     use crate::types::{BlockEntry, GhostUncleBlockEntry};
-    use chrono::NaiveDateTime;
+    use crate::utils;
     use diesel::QueryDsl;
     use diesel::{ExpressionMethods, SelectableHelper};
     use tokio;
@@ -116,7 +116,7 @@ mod tests {
     fn create_mock_block_model(height: i64) -> BlockModel {
         BlockModel {
             hash: format!("hash_{}", height),
-            timestamp: NaiveDateTime::from_timestamp_opt(1672531200, 0).unwrap(),
+            timestamp: utils::timestamp_millis_to_naive_datetime(1672531200),
             chain_from: 1,
             chain_to: 2,
             height,
@@ -246,7 +246,7 @@ mod tests {
 
         // Measure insertion time
         let start = Instant::now();
-        let result = processor.process_blocks(0, BLOCK_COUNT as i64, all_blocks).await.unwrap();
+        processor.process_blocks(0, BLOCK_COUNT as i64, all_blocks).await.unwrap();
         let duration = start.elapsed();
 
         println!(
