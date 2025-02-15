@@ -221,6 +221,8 @@ mod tests {
     fn test_block_entry_deser() {
         let json_data = json!({
             "hash": "00000000000006f8c2bcaac93c5a23df8fba7119ba139d80a49d0303bbf84850",
+            "parent": "00000000000006f8c2bcaac93c5a23df8fba7119ba139d80a49d0303bbf84850",
+            "mainChain": true,
             "timestamp": 1672531200,
             "chainFrom": 1,
             "chainTo": 2,
@@ -294,6 +296,8 @@ mod tests {
                     {
                         "block": {
                             "hash": "blockhash123",
+                            "parent": "parent_hash",
+                            "mainChain": true,
                             "timestamp": 1672531200,
                             "chainFrom": 1,
                             "chainTo": 2,
