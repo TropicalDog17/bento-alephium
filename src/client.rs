@@ -26,8 +26,9 @@ impl Network {
     /// A string containing the base URL of the network.
     pub fn base_url(&self) -> String {
         match self {
-            Network::Development => env::var("DEV_NODE_URL")
-                .unwrap_or_else(|_| "http://127.0.0.1:12973".to_owned()),
+            Network::Development => {
+                env::var("DEV_NODE_URL").unwrap_or_else(|_| "http://127.0.0.1:12973".to_owned())
+            }
             Network::Testnet => env::var("TESTNET_NODE_URL")
                 .unwrap_or_else(|_| "https://node.testnet.alephium.org".to_owned()),
             Network::Mainnet => env::var("MAINNET_NODE_URL")
@@ -68,10 +69,7 @@ impl Client {
     ///
     /// A new `Client` instance.
     pub fn new(network: Network) -> Self {
-        Self { 
-            inner: reqwest::Client::new(), 
-            base_url: network.base_url() 
-        }
+        Self { inner: reqwest::Client::new(), base_url: network.base_url() }
     }
 
     // List blocks on the given time interval.
