@@ -93,8 +93,8 @@ impl Client {
     /// A `Result` containing a `BlocksAndEventsPerTimestampRange` structure, or an error if the request fails.
     pub async fn get_blocks_and_events(
         &self,
-        from_ts: u128,
-        to_ts: u128,
+        from_ts: i64,
+        to_ts: i64,
     ) -> Result<BlocksAndEventsPerTimestampRange> {
         let endpoint = format!("blockflow/blocks-with-events?fromTs={}&toTs={}", from_ts, to_ts);
         let url = Url::parse(&format!("{}/{}", self.base_url, endpoint))?;

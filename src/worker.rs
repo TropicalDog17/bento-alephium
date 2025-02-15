@@ -114,7 +114,7 @@ impl Worker {
                 "Syncing blocks"
             );
             // Fetch blocks
-            match self.client.get_blocks_and_events(current_ts as u128, to_ts as u128).await {
+            match self.client.get_blocks_and_events(current_ts, to_ts).await {
                 Ok(blocks) => {
                     tracing::info!(
                         processor_name = processor_name,
