@@ -1,18 +1,17 @@
 use crate::types::{
-    BlockAndEvents, BlockEntry, BlockHash, BlockHeaderEntry, BlocksAndEventsPerTimestampRange,
+    BlockAndEvents, BlockEntry, BlockHeaderEntry, BlocksAndEventsPerTimestampRange,
     BlocksPerTimestampRange, Transaction,
 };
 use anyhow::Result;
 use std::env;
 use url::Url;
 
-/// Enum representing different networks for the client to interact with.
 #[derive(Clone, Debug)]
 pub enum Network {
-    Development,    // Represents the development network.
-    Testnet,        // Represents the testnet network.
-    Mainnet,        // Represents the mainnet network.
-    Custom(String), // Represents a custom network, specified by a URL.
+    Development,
+    Testnet,
+    Mainnet,
+    Custom(String),
 }
 
 impl Network {
@@ -73,17 +72,9 @@ impl Client {
         Self { inner: reqwest::Client::new(), base_url: network.base_url() }
     }
 
-    /// List blocks on the given time interval.
-    ///
-    /// # Arguments
-    ///
-    /// * `from_ts` - The starting timestamp for the block query.
-    /// * `to_ts` - The ending timestamp for the block query.
-    ///
-    /// # Returns
-    ///
-    /// A `Result` containing a `BlocksPerTimestampRange` structure, or an error if the request fails.
-    pub async fn get_blocks(&self, from_ts: u64, to_ts: u64) -> Result<BlocksPerTimestampRange> {
+    // List blocks on the given time interval.
+    // GET:/blockflow/blocks?fromTs={from_ts}&toTs={to_ts}
+    pub async fn get_blocks(&self, from_ts: u128, to_ts: u128) -> Result<BlocksPerTimestampRange> {
         let endpoint = format!("blockflow/blocks?fromTs={}&toTs={}", from_ts, to_ts);
         let url = Url::parse(&format!("{}/{}", self.base_url, endpoint))?;
         let response = self.inner.get(url).send().await?.json().await?;
@@ -102,8 +93,8 @@ impl Client {
     /// A `Result` containing a `BlocksAndEventsPerTimestampRange` structure, or an error if the request fails.
     pub async fn get_blocks_and_events(
         &self,
-        from_ts: u64,
-        to_ts: u64,
+        from_ts: i64,
+        to_ts: i64,
     ) -> Result<BlocksAndEventsPerTimestampRange> {
         let endpoint = format!("blockflow/blocks-with-events?fromTs={}&toTs={}", from_ts, to_ts);
         let url = Url::parse(&format!("{}/{}", self.base_url, endpoint))?;
@@ -111,16 +102,9 @@ impl Client {
         Ok(response)
     }
 
-    /// Get a block by its hash.
-    ///
-    /// # Arguments
-    ///
-    /// * `block_hash` - The hash of the block to retrieve.
-    ///
-    /// # Returns
-    ///
-    /// A `Result` containing a `BlockEntry` structure, or an error if the request fails.
-    pub async fn get_block(&self, block_hash: &BlockHash) -> Result<BlockEntry> {
+    // Get a block with hash.
+    // GET:/blockflow/blocks/{block_hash}
+    pub async fn get_block(&self, block_hash: &String) -> Result<BlockEntry> {
         let endpoint = format!("blockflow/blocks/{}", block_hash);
         let url = Url::parse(&format!("{}/{}", self.base_url, endpoint))?;
         let response = self.inner.get(url).send().await?.json().await?;
@@ -138,7 +122,7 @@ impl Client {
     /// A `Result` containing a `BlockAndEvents` structure, or an error if the request fails.
     pub async fn get_block_and_events_by_hash(
         &self,
-        block_hash: &BlockHash,
+        block_hash: &String,
     ) -> Result<BlockAndEvents> {
         let endpoint = format!("blockflow/blocks-with-events/{}", block_hash);
         let url = Url::parse(&format!("{}/{}", self.base_url, endpoint))?;
@@ -146,16 +130,9 @@ impl Client {
         Ok(response)
     }
 
-    /// Get the header of a block by its hash.
-    ///
-    /// # Arguments
-    ///
-    /// * `block_hash` - The hash of the block to retrieve the header for.
-    ///
-    /// # Returns
-    ///
-    /// A `Result` containing a `BlockHeaderEntry` structure, or an error if the request fails.
-    pub async fn get_block_header(&self, block_hash: &BlockHash) -> Result<BlockHeaderEntry> {
+    // Get block header.
+    // GET:/blockflow/headers/{block_hash}
+    pub async fn get_block_header(&self, block_hash: &String) -> Result<BlockHeaderEntry> {
         let endpoint = format!("blockflow/headers/{}", block_hash);
         let url = Url::parse(&format!("{}/{}", self.base_url, endpoint))?;
         let response = self.inner.get(url).send().await?.json().await?;
