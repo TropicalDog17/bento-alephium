@@ -2,6 +2,7 @@ use crate::db::DbPool;
 use serde::Deserialize;
 use std::sync::Arc;
 
+pub mod error;
 pub mod handler;
 pub mod index;
 

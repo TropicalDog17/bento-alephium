@@ -1,6 +1,7 @@
 use axum::extract::{Query, State};
 use axum::Json;
 
+use crate::api::error::AppError;
 use crate::api::Pagination;
 use crate::repository::{get_block_by_hash, get_block_by_height, get_block_transactions};
 use crate::{api::AppState, repository::get_blocks};
@@ -34,29 +35,29 @@ pub async fn get_blocks_handler(
 pub async fn get_block_by_hash_handler(
     hash: Query<String>,
     State(state): State<AppState>,
-) -> impl IntoResponse {
+) -> Result<impl IntoResponse, AppError> {
     let db = state.db;
 
-    let block_model = get_block_by_hash(db, &hash).await.unwrap();
-    Json(block_model)
+    let block_model = get_block_by_hash(db, &hash).await?;
+    Ok(Json(block_model))
 }
 
 pub async fn get_block_by_height_handler(
     height: Query<i64>,
     State(state): State<AppState>,
-) -> impl IntoResponse {
+) -> Result<impl IntoResponse, AppError> {
     let db = state.db;
 
-    let block_model = get_block_by_height(db, *height).await.unwrap();
-    Json(block_model)
+    let block_model = get_block_by_height(db, *height).await?;
+    Ok(Json(block_model))
 }
 
 pub async fn get_block_transactions_handler(
     hash: Query<String>,
     State(state): State<AppState>,
-) -> impl IntoResponse {
+) -> Result<impl IntoResponse, AppError> {
     let db = state.db;
 
-    let transaction_models = get_block_transactions(db, hash.to_string()).await.unwrap();
-    Json(transaction_models)
+    let transaction_models = get_block_transactions(db, hash.to_string()).await?;
+    Ok(Json(transaction_models))
 }

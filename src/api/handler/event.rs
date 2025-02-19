@@ -1,6 +1,7 @@
 use axum::extract::{Query, State};
 use axum::Json;
 
+use crate::api::error::AppError;
 use crate::api::AppState;
 use crate::api::Pagination;
 use crate::repository::{get_events, get_events_by_contract, get_events_by_tx};
@@ -20,21 +21,20 @@ impl EventApiModule {
 pub async fn get_events_handler(
     pagination: Query<Pagination>,
     State(state): State<AppState>,
-) -> impl IntoResponse {
+) -> Result<impl IntoResponse, AppError> {
     let db = state.db;
 
     let event_models =
         get_events(db, pagination.limit.unwrap_or(i64::MAX), pagination.offset.unwrap_or(0))
-            .await
-            .unwrap();
-    Json(event_models)
+            .await?;
+    Ok(Json(event_models))
 }
 
 pub async fn get_events_by_contract_handler(
     address: Query<String>,
     pagination: Query<Pagination>,
     State(state): State<AppState>,
-) -> impl IntoResponse {
+) -> Result<impl IntoResponse, AppError> {
     let db = state.db;
 
     let event_models = get_events_by_contract(
@@ -43,16 +43,15 @@ pub async fn get_events_by_contract_handler(
         pagination.limit.unwrap_or(i64::MAX),
         pagination.offset.unwrap_or(0),
     )
-    .await
-    .unwrap();
-    Json(event_models)
+    .await?;
+    Ok(Json(event_models))
 }
 
 pub async fn get_events_by_tx_id_handler(
     tx_id: Query<String>,
     pagination: Query<Pagination>,
     State(state): State<AppState>,
-) -> impl IntoResponse {
+) -> Result<impl IntoResponse, AppError> {
     let db = state.db;
 
     let event_models = get_events_by_tx(
@@ -61,7 +60,6 @@ pub async fn get_events_by_tx_id_handler(
         pagination.limit.unwrap_or(i64::MAX),
         pagination.offset.unwrap_or(0),
     )
-    .await
-    .unwrap();
-    Json(event_models)
+    .await?;
+    Ok(Json(event_models))
 }

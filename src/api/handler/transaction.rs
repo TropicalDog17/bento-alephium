@@ -1,6 +1,7 @@
 use axum::extract::{Query, State};
 use axum::Json;
 
+use crate::api::error::AppError;
 use crate::api::AppState;
 use crate::api::Pagination;
 use crate::repository::{get_tx_by_hash, get_txs};
@@ -19,22 +20,20 @@ impl TransactionApiModule {
 pub async fn get_txs_handler(
     pagination: Query<Pagination>,
     State(state): State<AppState>,
-) -> impl IntoResponse {
+) -> Result<impl IntoResponse, AppError> {
     let db = state.db;
 
     let tx_models =
-        get_txs(db, pagination.limit.unwrap_or(i64::MAX), pagination.offset.unwrap_or(0))
-            .await
-            .unwrap();
-    Json(tx_models)
+        get_txs(db, pagination.limit.unwrap_or(i64::MAX), pagination.offset.unwrap_or(0)).await?;
+    Ok(Json(tx_models))
 }
 
 pub async fn get_tx_by_hash_handler(
     hash: Query<String>,
     State(state): State<AppState>,
-) -> impl IntoResponse {
+) -> Result<impl IntoResponse, AppError> {
     let db = state.db;
 
-    let tx_model = get_tx_by_hash(db, &hash).await.unwrap();
-    Json(tx_model)
+    let tx_model = get_tx_by_hash(db, &hash).await?;
+    Ok(Json(tx_model))
 }
