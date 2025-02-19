@@ -1,24 +1,24 @@
+use anyhow::Result;
 use axum::{routing::get, Router};
 
 use super::AppState;
 use crate::api::handler::{BlockApiModule, EventApiModule, TransactionApiModule};
-use crate::db::new_db_pool;
+use crate::config::Config;
 
-#[tokio::main]
-pub async fn main() {
+pub async fn start(config: Config) -> Result<()> {
     // initialize tracing
     tracing_subscriber::fmt::init();
 
-    let database_url = std::env::var("DATABASE_URL").expect("DATABASE_URL must be set");
+    // create our application state
+    let state = AppState { db: config.db_client };
 
-    // build our application with a route
-    let db_pool = new_db_pool(&database_url, None).await.unwrap();
-    let state = AppState { db: db_pool };
+    // create our application stack
     let app = configure_api().with_state(state);
-
-    // run our app with hyper, listening globally on port 3000
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
-    axum::serve(listener, app).await.unwrap();
+
+    axum::serve(listener, app).await?;
+
+    Ok(())
 }
 
 // basic handler that responds with a static string
