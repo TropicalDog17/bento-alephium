@@ -14,7 +14,11 @@ pub async fn start(config: Config) -> Result<()> {
 
     // create our application stack
     let app = configure_api().with_state(state);
-    let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
+
+    let host = std::env::var("HOST").unwrap_or("127.0.0.1".to_string());
+    let port = std::env::var("PORT").unwrap_or("3000".to_string());
+    let addr = format!("{:}:{:}", host, port);
+    let listener = tokio::net::TcpListener::bind(addr).await?;
 
     axum::serve(listener, app).await?;
 
