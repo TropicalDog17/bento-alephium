@@ -1,8 +1,4 @@
-use std::sync::Arc;
-
 use axum::Router;
-
-use crate::db::DbPool;
 
 use super::AppState;
 

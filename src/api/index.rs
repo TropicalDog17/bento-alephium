@@ -1,15 +1,11 @@
-use axum::{
-    routing::{get, post},
-    Json, Router,
-};
-use serde::{Deserialize, Serialize};
+use axum::{routing::get, Router};
 
 use super::AppState;
 use crate::api::handler::{BlockApiModule, EventApiModule, TransactionApiModule};
-use crate::{db::new_db_pool, models::block::BlockModel};
+use crate::db::new_db_pool;
 
 #[tokio::main]
-async fn main() {
+pub async fn main() {
     // initialize tracing
     tracing_subscriber::fmt::init();
 

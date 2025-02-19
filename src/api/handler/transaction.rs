@@ -1,12 +1,9 @@
-use std::usize;
-
-use actix_web::http::StatusCode;
 use axum::extract::{Query, State};
 use axum::Json;
 
+use crate::api::AppState;
 use crate::api::Pagination;
 use crate::repository::{get_tx_by_hash, get_txs};
-use crate::{api::AppState, models::block::BlockModel, repository::get_blocks};
 use axum::response::IntoResponse;
 
 pub struct TransactionApiModule;

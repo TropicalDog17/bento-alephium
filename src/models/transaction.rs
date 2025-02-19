@@ -17,7 +17,7 @@ use crate::{schema::transactions, types::BlockHash};
     Identifiable,
 )]
 #[diesel(table_name = transactions)]
-#[primary_key(tx_hash)]
+#[diesel(primary_key(tx_hash))]
 #[diesel(belongs_to(BlockModel, foreign_key = block_hash))]
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct TransactionModel {
