@@ -40,6 +40,7 @@ pub fn convert_bwe_to_event_models(blocks: Vec<Vec<BlockAndEvents>>) -> Vec<Even
         for be in bes {
             for e in be.events {
                 models.push(EventModel {
+                    id: 0,
                     tx_id: e.tx_id,
                     contract_address: e.contract_address,
                     event_index: e.event_index,
