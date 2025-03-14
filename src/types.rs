@@ -204,6 +204,20 @@ pub enum Order {
     Desc,
 }
 
+#[derive(Clone)]
+pub enum StageMessage {
+    // Input of fetcher stage
+    Range(BlockRange),
+
+    // Input of processor stage
+    Batch(BlockBatch),
+
+    // Output of processor stage
+    Processed(ProcessorOutput),
+    Complete,
+}
+
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -378,3 +392,4 @@ mod tests {
         assert_eq!(field.field_type, EventFieldType::ByteVec);
     }
 }
+
