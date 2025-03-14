@@ -1,8 +1,10 @@
 use std::vec;
 
+use bento_alephium::types::FetchStrategy;
 use bento_alephium::{
     client::Network,
-    config::ProcessorConfig, workers::worker_v2::{FetchStrategy, SyncOptions, Worker},
+    config::ProcessorConfig,
+    workers::worker_v2::{SyncOptions, Worker},
 };
 
 #[tokio::main]
@@ -21,14 +23,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         None,
         Some(SyncOptions {
             start_ts: Some(1716560632750),
-            step: Some(18000000 * 10),
+            step: Some(1800000 * 10),
             back_step: None,
             sync_duration: None,
         }),
-        Some(FetchStrategy::Parallel {num_workers: 10 })
+        Some(FetchStrategy::Parallel { num_workers: 10 }),
     )
     .await?;
 
-    let _  = worker.run().await;
+    let _ = worker.run().await;
     Ok(())
 }

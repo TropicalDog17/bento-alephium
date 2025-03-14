@@ -1,15 +1,19 @@
+use core::fmt;
 
-use crate::{traits::BlockProvider, types::{
-    BlockAndEvents, BlockEntry, BlockHeaderEntry, BlocksAndEventsPerTimestampRange,
-    BlocksPerTimestampRange,
-}};
+use crate::{
+    traits::BlockProvider,
+    types::{
+        BlockAndEvents, BlockEntry, BlockHeaderEntry, BlocksAndEventsPerTimestampRange,
+        BlocksPerTimestampRange,
+    },
+};
 use anyhow::Result;
-use url::Url;
 use async_trait::async_trait;
+use url::Url;
 
 use super::Client;
 #[async_trait]
-impl BlockProvider for  Client {
+impl BlockProvider for Client {
     // List blocks on the given time interval.
     // GET:/blockflow/blocks?fromTs={from_ts}&toTs={to_ts}
     async fn get_blocks(&self, from_ts: u128, to_ts: u128) -> Result<BlocksPerTimestampRange> {
@@ -36,7 +40,9 @@ impl BlockProvider for  Client {
     ) -> Result<BlocksAndEventsPerTimestampRange> {
         let endpoint = format!("blockflow/blocks-with-events?fromTs={}&toTs={}", from_ts, to_ts);
         let url = Url::parse(&format!("{}/{}", self.base_url, endpoint))?;
-        let response = self.inner.get(url).send().await?.json().await?;
+        tracing::info!("Requesting blocks with events from: {} to: {}", from_ts, to_ts);
+        let response: BlocksAndEventsPerTimestampRange =
+            self.inner.get(url).send().await?.json().await?;
         Ok(response)
     }
 
@@ -58,10 +64,7 @@ impl BlockProvider for  Client {
     /// # Returns
     ///
     /// A `Result` containing a `BlockAndEvents` structure, or an error if the request fails.
-    async fn get_block_and_events_by_hash(
-        &self,
-        block_hash: &str,
-    ) -> Result<BlockAndEvents> {
+    async fn get_block_and_events_by_hash(&self, block_hash: &str) -> Result<BlockAndEvents> {
         let endpoint = format!("blockflow/blocks-with-events/{}", block_hash);
         let url = Url::parse(&format!("{}/{}", self.base_url, endpoint))?;
         let response = self.inner.get(url).send().await?.json().await?;

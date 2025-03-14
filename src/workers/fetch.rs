@@ -1,50 +1,79 @@
-use futures::channel::mpsc::{Receiver, Sender};
+use std::{sync::Arc, time::Instant};
 
-use super::worker_v2::StageMessage;
+use anyhow::Result;
+use futures::{
+    stream::{FuturesOrdered, FuturesUnordered},
+    StreamExt,
+};
 
+use crate::{
+    client::Client,
+    traits::BlockProvider,
+    types::{BlockAndEvents, BlockBatch, BlockRange, MAX_TIMESTAMP_RANGE},
+};
 
-pub async fn fetcher_worker(
-    fetch_rx: Receiver<StageMessage>,
-    process_tx: Sender<StageMessage>,
-    completion_tx: Sender<Range>,
-) -> anyhow::Result<()> {
-    let fetcher = Fetcher::new().await?;
-let mut rx = fetch_rx;
-            
-            while let Some(msg) = rx.recv().await {
-                if let StageMessage::Range(range) = msg {
-                    tracing::info!("Fetcher starting to fetch range: {} to {}", range.from_ts, range.to_ts);
-                    
-                    let result = fetcher.handle(msg).await?;
-                    
-                    match result {
-                        StageMessage::Batch(batch) => {
-                            // Send first batch to processor
-                            process_tx.send(StageMessage::Batch(batch.clone())).await?;
-                            
-                            // Track this range for completion notification
-                            completion_tx.send(range).await?;
-                            
-                            // Check for remaining batches from parallel fetching
-                            let mut remaining = fetcher.remaining_batches.lock().await;
-                            tracing::info!("Fetcher has {} remaining batches", remaining.len());
-                            
-                            // Process any remaining batches
-                            while !remaining.is_empty() {
-                                let next_batch = remaining.remove(0);
-                                process_tx.send(StageMessage::Batch(next_batch)).await?;
-                            }
-                        }
-                        _ => {
-                            tracing::info!("Fetcher received unexpected message type");
-                        }
-                    }
-                }
-            }
-            
-            // Close processor channel when fetcher is done
-            drop(process_tx);
-            drop(completion_tx);
-            
-            Ok::<_, anyhow::Error>(())
-        }
+pub async fn fetch_parallel(
+    client: Arc<Client>,
+    range: BlockRange,
+    num_workers: usize,
+) -> Result<BlockBatch> {
+    let total_time: i64 = range.to_ts - range.from_ts;
+    let chunk_size = total_time / num_workers as i64;
+
+    let mut futures = FuturesOrdered::new();
+
+    for i in 0..num_workers {
+        let from = range.from_ts + (i as i64 * chunk_size);
+        let to = if i == num_workers - 1 { range.to_ts } else { from + chunk_size };
+
+        let range = BlockRange { from_ts: from, to_ts: to };
+        futures.push_back(fetch_chunk(client.clone(), range));
+    }
+
+    let mut results = Vec::new();
+    while let Some(result) = futures.next().await {
+        results.push(result?);
+    }
+
+    // merge to one large batch
+    let mut blocks = Vec::new();
+    for batch in results.iter() {
+        blocks.extend(batch.blocks.clone());
+    }
+
+    let merged_batch =
+        BlockBatch { blocks, range: BlockRange { from_ts: range.from_ts, to_ts: range.to_ts } };
+
+    Ok(merged_batch)
+}
+
+pub async fn fetch_chunk(client: Arc<Client>, range: BlockRange) -> Result<BlockBatch> {
+    if (range.to_ts - range.from_ts) > MAX_TIMESTAMP_RANGE {
+        return Err(anyhow::anyhow!(
+            "Timestamp range exceeds maximum limit, maximum {}, got {}",
+            MAX_TIMESTAMP_RANGE,
+            range.to_ts - range.from_ts,
+        ));
+    }
+
+    let start = Instant::now();
+    let blocks: Vec<BlockAndEvents> = client
+        .get_blocks_and_events(range.from_ts, range.to_ts)
+        .await?
+        .blocks_and_events
+        .iter()
+        .flatten()
+        .cloned()
+        .collect();
+
+    let elapsed = start.elapsed();
+
+    tracing::info!(
+        "Fetched {} blocks from timestamp {} to timestamp {} in {:.2?}",
+        blocks.clone().len(),
+        range.from_ts,
+        range.to_ts,
+        elapsed
+    );
+    Ok(BlockBatch { blocks, range })
+}

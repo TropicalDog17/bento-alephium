@@ -1,6 +1,6 @@
+use crate::processors::ProcessorOutput;
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
-
 pub const DEFAULT_GROUP_NUM: i64 = 4;
 pub const REORG_TIMEOUT: i64 = 210 * 16 * 1000; // 210 blocks * 16 seconds
 
@@ -217,6 +217,27 @@ pub enum StageMessage {
     Complete,
 }
 
+pub const MAX_TIMESTAMP_RANGE: i64 = 1800000;
+
+// Message types for different stages
+#[derive(Clone)]
+pub enum FetchStrategy {
+    Simple,
+    Chunked { chunk_size: i64 },
+    Parallel { num_workers: usize },
+}
+
+#[derive(Clone, Copy)]
+pub struct BlockRange {
+    pub from_ts: i64,
+    pub to_ts: i64,
+}
+
+#[derive(Clone)]
+pub struct BlockBatch {
+    pub blocks: Vec<BlockAndEvents>,
+    pub range: BlockRange,
+}
 
 #[cfg(test)]
 mod tests {
@@ -392,4 +413,3 @@ mod tests {
         assert_eq!(field.field_type, EventFieldType::ByteVec);
     }
 }
-
