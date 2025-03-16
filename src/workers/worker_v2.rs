@@ -204,14 +204,17 @@ impl Pipeline {
         }
     }
 
-    pub async fn run(&self, initial_range: BlockRange) -> Result<()> {
+    pub async fn run(&self, batches: Vec<BlockBatch>) -> Result<()> {
         let channel_capacity = 100;
         let (process_tx, process_rx) = mpsc::channel(channel_capacity);
         let (storage_tx, storage_rx) = mpsc::channel(channel_capacity);
+        
+        // Send the fetched batches to the processor
+        for batch in batches {
+            process_tx.send(StageMessage::Batch(batch)).await?;
+        }
 
-        // Fetch the batch directly here
-        let batch = fetch_parallel(self.client.clone(), initial_range, 10).await?;
-        process_tx.send(StageMessage::Batch(batch)).await?;
+        drop(process_tx);
 
         // Spawn stage handlers
         let processor = self.processor.clone();
@@ -260,9 +263,12 @@ impl Pipeline {
             Ok::<_, anyhow::Error>(())
         });
 
-        // Wait for all tasks to complete
-        let _ = tokio::join!(process_handle, storage_handle);
+        let (process_result, storage_result) = tokio::join!(process_handle, storage_handle);
 
+        process_result??;
+        storage_result??;
+
+        tracing::info!("Pipeline execution completed successfully");
         Ok(())
     }
 }
@@ -301,6 +307,7 @@ impl Worker {
         let mut handles = Vec::new();
 
         for processor_config in self.processor_configs.clone() {
+            
             let pool_clone = self.db_pool.clone();
             let client_clone = self.client.clone();
             let fetch_strategy_clone = self.fetch_strategy.clone();
@@ -312,11 +319,11 @@ impl Worker {
                 let processor_name = processor.name();
 
                 let pipeline = Pipeline::new(
-                    client_clone,
+                    client_clone.clone(),
                     pool_clone.clone(),
                     processor,
-                    fetch_strategy_clone,
-                    sync_opts_clone,
+                    fetch_strategy_clone.clone(),
+                    sync_opts_clone.clone(),
                 );
 
                 let last_ts = get_last_timestamp(&pool_clone, processor_name).await?;
@@ -328,8 +335,9 @@ impl Worker {
                 loop {
                     let to_ts = current_ts + step;
                     let range = BlockRange { from_ts: current_ts, to_ts };
-
-                    if let Err(err) = pipeline.run(range).await {
+                    let batches = fetch_parallel(client_clone.clone(), range, fetch_strategy_clone.num_workers())
+                        .await?;
+                    if let Err(err) = pipeline.run(batches).await {
                         tracing::error!(
                             processor_name = processor_name,
                             error = ?err,
@@ -339,6 +347,7 @@ impl Worker {
                     } else {
                         update_last_timestamp(&pool_clone, processor_name, to_ts).await?;
                         current_ts = to_ts + 1;
+                        
                     }
 
                     tokio_sleep(sync_duration).await;

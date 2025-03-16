@@ -79,7 +79,7 @@ pub enum EventFieldType {
 pub struct EventField {
     #[serde(rename = "type")]
     pub field_type: EventFieldType,
-    pub value: String,
+    pub value: serde_json::Value,
 }
 
 #[derive(Deserialize, Debug, Clone)]
@@ -225,6 +225,16 @@ pub enum FetchStrategy {
     Simple,
     Chunked { chunk_size: i64 },
     Parallel { num_workers: usize },
+}
+
+impl FetchStrategy {
+    pub fn num_workers(&self) -> usize {
+        match self {
+            FetchStrategy::Simple => 1,
+            FetchStrategy::Chunked { chunk_size: _ } => 1,
+            FetchStrategy::Parallel { num_workers } => *num_workers,
+        }
+    }
 }
 
 #[derive(Clone, Copy)]
