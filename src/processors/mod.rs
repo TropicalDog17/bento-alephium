@@ -10,6 +10,7 @@ use default_processor::DefaultProcessor;
 use diesel_async::{pooled_connection::bb8::Pool, AsyncPgConnection};
 use event_processor::EventProcessor;
 use lending_marketplace_processor::{LendingContractProcessor, LoanActionModel, LoanDetailModel};
+
 use std::{fmt::Debug, sync::Arc};
 use tx_processor::TxProcessor;
 
@@ -128,4 +129,6 @@ impl Processor {
             }
         }
     }
+
+
 }

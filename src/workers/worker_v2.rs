@@ -33,7 +33,6 @@ pub struct ProcessorStage {
     processor: Processor,
 }
 
-// Modify the ProcessorStage::handle method
 #[async_trait::async_trait]
 impl StageHandler for ProcessorStage {
     async fn handle(&self, input: StageMessage) -> Result<StageMessage> {
@@ -59,7 +58,14 @@ impl StageHandler for ProcessorStage {
                     batch.range.to_ts,
                     elapsed
                 );
-
+                
+                // Process blocks
+                let output = self.processor.process_blocks(
+                    batch.range.from_ts,
+                    batch.range.to_ts,
+                    batch.blocks,
+                ).await?;
+                
                 Ok(StageMessage::Processed(output))
             }
             _ => Ok(StageMessage::Complete),
@@ -70,7 +76,6 @@ pub struct StorageStage {
     db_pool: Arc<DbPool>,
 }
 
-// Modify the StorageStage::handle method
 #[async_trait::async_trait]
 impl StageHandler for StorageStage {
     async fn handle(&self, input: StageMessage) -> Result<StageMessage> {
@@ -159,7 +164,7 @@ impl StageHandler for StorageStage {
                                     elapsed
                                 );
                                 Ok(())
-                            }
+                          }
                             Err(e) => {
                                 tracing::error!("Failed to store transactions: {}", e);
                                 Err(e)
@@ -386,6 +391,7 @@ impl Worker {
     }
 }
 
+
 pub async fn get_last_timestamp(db_pool: &Arc<DbPool>, processor_name: &str) -> Result<i64> {
     tracing::info!(processor = processor_name, "Getting last timestamp");
     let mut conn = db_pool.get().await?;
@@ -437,6 +443,7 @@ pub fn build_processor(config: &ProcessorConfig, db_pool: Arc<DbPool>) -> Proces
                 contract_address.clone(),
             ))
         }
+
         ProcessorConfig::TxProcessor => Processor::TxProcessor(TxProcessor::new(db_pool)),
     }
 }
